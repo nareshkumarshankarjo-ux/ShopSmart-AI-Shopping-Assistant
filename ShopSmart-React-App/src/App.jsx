@@ -4,7 +4,7 @@ import React, {
 } from "react";
 
 import {
-  BrowserRouter,
+  HashRouter,
   Routes,
   Route,
 } from "react-router-dom";
@@ -339,7 +339,7 @@ function App() {
   );
 
   return (
-    <BrowserRouter>
+    <HashRouter>
       <div className="app">
         <Navbar
           cartCount={cartCount}
@@ -449,7 +449,7 @@ function App() {
 
         <Footer />
       </div>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 
