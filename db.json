@@ -1,0 +1,161 @@
+{
+  "products": [
+    {
+      "id": "1",
+      "name": "SmartBook Air 14",
+      "brand": "SmartTech",
+      "category": "Laptop",
+      "price": 38999,
+      "originalPrice": 45999,
+      "rating": 4.5,
+      "description": "Lightweight laptop with long battery life for students and office work.",
+      "image": "/products/smartbook-air-14.jpg",
+      "batteryScore": 9,
+      "bestSeller": true
+    },
+    {
+      "id": "2",
+      "name": "ProBook X15",
+      "brand": "NextGen",
+      "category": "Laptop",
+      "price": 55999,
+      "originalPrice": 64999,
+      "rating": 4.7,
+      "description": "Powerful laptop suitable for programming, design and multitasking.",
+      "image": "/products/probook-x15.jpg",
+      "batteryScore": 8,
+      "bestSeller": true
+    },
+    {
+      "id": "3",
+      "name": "StudentBook Lite",
+      "brand": "EduTech",
+      "category": "Laptop",
+      "price": 32999,
+      "originalPrice": 38999,
+      "rating": 4.3,
+      "description": "Budget-friendly laptop designed for students and online learning.",
+      "image": "/products/studentbook-lite.jpg",
+      "batteryScore": 10,
+      "bestSeller": false
+    },
+    {
+      "id": "4",
+      "name": "SmartPhone Neo 5G",
+      "brand": "SmartTech",
+      "category": "Mobile",
+      "price": 21999,
+      "originalPrice": 25999,
+      "rating": 4.4,
+      "description": "5G smartphone with excellent display, camera and battery life.",
+      "image": "/products/smartphone-neo-5g.jpg",
+      "batteryScore": 9,
+      "bestSeller": true
+    },
+    {
+      "id": "5",
+      "name": "Vision Pro Mobile",
+      "brand": "Vision",
+      "category": "Mobile",
+      "price": 29999,
+      "originalPrice": 34999,
+      "rating": 4.6,
+      "description": "Premium smartphone with high-resolution camera and fast performance.",
+      "image": "/products/vision-pro-mobile.jpg",
+      "batteryScore": 8,
+      "bestSeller": false
+    },
+    {
+      "id": "6",
+      "name": "SoundMax Wireless",
+      "brand": "SoundMax",
+      "category": "Headphone",
+      "price": 2999,
+      "originalPrice": 3999,
+      "rating": 4.6,
+      "description": "Wireless headphones with rich sound and long battery backup.",
+      "image": "/products/soundmax-wireless.jpg",
+      "batteryScore": 9,
+      "bestSeller": true
+    },
+    {
+      "id": "7",
+      "name": "BeatLite Headphones",
+      "brand": "BeatLite",
+      "category": "Headphone",
+      "price": 1499,
+      "originalPrice": 2199,
+      "rating": 4.2,
+      "description": "Affordable wireless headphones for music, calls and study.",
+      "image": "/products/beatlite-headphones.jpg",
+      "batteryScore": 7,
+      "bestSeller": false
+    },
+    {
+      "id": "8",
+      "name": "FitWatch Pro",
+      "brand": "FitSmart",
+      "category": "Watch",
+      "price": 4999,
+      "originalPrice": 6499,
+      "rating": 4.5,
+      "description": "Smartwatch with fitness tracking, notifications and health monitoring.",
+      "image": "/products/fitwatch-pro.jpg",
+      "batteryScore": 8,
+      "bestSeller": true
+    },
+    {
+      "id": "9",
+      "name": "StudyTab 10",
+      "brand": "EduTech",
+      "category": "Tablet",
+      "price": 18999,
+      "originalPrice": 22999,
+      "rating": 4.4,
+      "description": "Tablet designed for study, entertainment and online classes.",
+      "image": "/products/studytab-10.jpg",
+      "batteryScore": 9,
+      "bestSeller": false
+    },
+    {
+      "id": "10",
+      "name": "ClickPro Camera",
+      "brand": "ClickPro",
+      "category": "Camera",
+      "price": 42999,
+      "originalPrice": 48999,
+      "rating": 4.7,
+      "description": "Digital camera for photography and high-quality video recording.",
+      "image": "/products/clickpro-camera.jpg",
+      "batteryScore": 7,
+      "bestSeller": false
+    }
+  ],
+  "cart": [
+    {
+      "productId": "4",
+      "name": "SmartPhone Neo 5G",
+      "price": 21999,
+      "image": "/products/smartphone-neo-5g.jpg",
+      "quantity": 1,
+      "id": "qQJgVZ9rJYk"
+    },
+    {
+      "productId": "9",
+      "name": "StudyTab 10",
+      "price": 18999,
+      "image": "/products/studytab-10.jpg",
+      "quantity": 1,
+      "id": "l54XKa7ZCpk"
+    },
+    {
+      "productId": "1",
+      "name": "SmartBook Air 14",
+      "price": 38999,
+      "image": "/products/smartbook-air-14.jpg",
+      "quantity": 1,
+      "id": "GnObFdOf7fM"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}

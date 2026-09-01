@@ -1,0 +1,106 @@
+==================================================
+          SHOPSMART - AI SHOPPING ASSISTANT
+==================================================
+
+Project Name:
+ShopSmart - AI Shopping Assistant
+
+Developed By:
+Nareshkumar S.
+
+Technology Used:
+React.js
+Vite
+JavaScript
+HTML5
+CSS3
+React Router DOM
+JSON Server
+Fetch API
+Local Storage
+Web Speech API
+Speech Recognition
+Speech Synthesis
+
+--------------------------------------------------
+GITHUB REPOSITORY
+--------------------------------------------------
+
+GitHub Repository:
+https://github.com/nareshkumarshankarjo-ux/ShopSmart-AI-Shopping-Assistant.git
+
+
+--------------------------------------------------
+LIVE PROJECT
+--------------------------------------------------
+
+Live Demo:
+PASTE YOUR LIVE PROJECT LINK HERE
+
+
+--------------------------------------------------
+LOCAL DEVELOPMENT LINKS
+--------------------------------------------------
+
+Frontend:
+http://localhost:5173
+
+Products Page:
+http://localhost:5173/products
+
+Shopping Cart:
+http://localhost:5173/cart
+
+Admin:
+http://localhost:5173/admin
+
+Login:
+http://localhost:5173/login
+
+Register:
+http://localhost:5173/register
+
+
+--------------------------------------------------
+JSON SERVER API
+--------------------------------------------------
+
+JSON Server:
+http://localhost:3001
+
+Products API:
+http://localhost:3001/products
+
+Cart API:
+http://localhost:3001/cart
+
+
+--------------------------------------------------
+MAIN FEATURES
+--------------------------------------------------
+
+• Smart Product Search
+• AI-style Product Recommendations
+• Voice Search
+• Speech Recognition
+• Speak Search Results
+• Product Category Filtering
+• Product Images
+• Add to Cart
+• Increase / Decrease Cart Quantity
+• Remove from Cart
+• Order Summary
+• User Registration
+• User Login / Logout
+• Admin Product Management
+• JSON Server REST API
+• Responsive User Interface
+
+
+--------------------------------------------------
+PROJECT
+--------------------------------------------------
+
+ShopSmart - AI Shopping Assistant
+© 2026 ShopSmart Mini Project
+==================================================
