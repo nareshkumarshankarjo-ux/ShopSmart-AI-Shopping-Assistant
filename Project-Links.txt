@@ -22,6 +22,7 @@ Web Speech API
 Speech Recognition
 Speech Synthesis
 
+
 --------------------------------------------------
 GITHUB REPOSITORY
 --------------------------------------------------
@@ -35,7 +36,21 @@ LIVE PROJECT
 --------------------------------------------------
 
 Live Demo:
-PASTE YOUR LIVE PROJECT LINK HERE
+https://nareshkumarshankarjo-ux.github.io/ShopSmart-AI-Shopping-Assistant/
+
+
+--------------------------------------------------
+LIVE JSON SERVER API - RENDER
+--------------------------------------------------
+
+JSON Server:
+https://shopsmart-ai-shopping-assistant.onrender.com
+
+Products API:
+https://shopsmart-ai-shopping-assistant.onrender.com/products
+
+Cart API:
+https://shopsmart-ai-shopping-assistant.onrender.com/cart
 
 
 --------------------------------------------------
@@ -43,26 +58,26 @@ LOCAL DEVELOPMENT LINKS
 --------------------------------------------------
 
 Frontend:
-http://localhost:5173
+http://localhost:5173/ShopSmart-AI-Shopping-Assistant/
 
 Products Page:
-http://localhost:5173/products
+http://localhost:5173/ShopSmart-AI-Shopping-Assistant/#/products
 
 Shopping Cart:
-http://localhost:5173/cart
+http://localhost:5173/ShopSmart-AI-Shopping-Assistant/#/cart
 
 Admin:
-http://localhost:5173/admin
+http://localhost:5173/ShopSmart-AI-Shopping-Assistant/#/admin
 
 Login:
-http://localhost:5173/login
+http://localhost:5173/ShopSmart-AI-Shopping-Assistant/#/login
 
 Register:
-http://localhost:5173/register
+http://localhost:5173/ShopSmart-AI-Shopping-Assistant/#/register
 
 
 --------------------------------------------------
-JSON SERVER API
+LOCAL JSON SERVER API
 --------------------------------------------------
 
 JSON Server:
@@ -83,9 +98,11 @@ MAIN FEATURES
 • AI-style Product Recommendations
 • Voice Search
 • Speech Recognition
+• Speech Synthesis
 • Speak Search Results
 • Product Category Filtering
 • Product Images
+• Best Seller Products
 • Add to Cart
 • Increase / Decrease Cart Quantity
 • Remove from Cart
@@ -94,6 +111,8 @@ MAIN FEATURES
 • User Login / Logout
 • Admin Product Management
 • JSON Server REST API
+• Online API Deployment with Render
+• Frontend Deployment with GitHub Pages
 • Responsive User Interface
 
 
@@ -103,4 +122,5 @@ PROJECT
 
 ShopSmart - AI Shopping Assistant
 © 2026 ShopSmart Mini Project
+
 ==================================================
