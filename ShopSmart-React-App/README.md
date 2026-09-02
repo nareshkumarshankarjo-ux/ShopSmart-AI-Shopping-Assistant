@@ -1,21 +1,53 @@
 # 🛒 ShopSmart – AI Shopping Assistant
 
-ShopSmart is a modern AI-powered shopping assistant web application built using React.js, Vite, React Router, and JSON Server.
+ShopSmart is a modern AI-powered shopping assistant web application built using **React.js, Vite, React Router DOM, and JSON Server**.
 
 The application allows users to browse products, search intelligently, use voice search, filter products by category, manage a shopping cart, register/login, and manage products through an Admin page.
 
 ---
 
-## 🚀 Features
+## 🌐 Live Project
 
-### 🏠 Home Page
+### Live Demo
+
+https://nareshkumarshankarjo-ux.github.io/ShopSmart-AI-Shopping-Assistant/
+
+### GitHub Repository
+
+https://github.com/nareshkumarshankarjo-ux/ShopSmart-AI-Shopping-Assistant
+
+---
+
+## 🌐 Live REST API
+
+The JSON Server REST API is deployed online using **Render**.
+
+### API Base URL
+
+https://shopsmart-ai-shopping-assistant.onrender.com
+
+### Products API
+
+https://shopsmart-ai-shopping-assistant.onrender.com/products
+
+### Cart API
+
+https://shopsmart-ai-shopping-assistant.onrender.com/cart
+
+---
+
+# 🚀 Features
+
+## 🏠 Home Page
+
 - Modern responsive homepage
 - ShopSmart branding
 - Featured / best-selling products
 - Quick navigation to products
 - AI-powered shopping concept
 
-### 🛍️ Products Page
+## 🛍️ Products Page
+
 - Display all available products
 - Product images
 - Product name and description
@@ -25,7 +57,8 @@ The application allows users to browse products, search intelligently, use voice
 - Best Seller badge
 - Add to Cart functionality
 
-### 🔍 Smart Search
+## 🔍 Smart Search
+
 Users can search products using natural-language queries.
 
 Examples:
@@ -39,28 +72,33 @@ headphone
 
 The Smart Search filters the available products and displays suitable results.
 
-### 🎤 Voice Search
+## 🎤 Voice Search
+
 ShopSmart supports browser-based voice search.
 
 Users can:
+
 - Click **Voice Search**
 - Speak a product requirement
 - Convert speech to search text
 - Automatically search matching products
 
-Voice recognition uses the browser Web Speech API where supported.
+Voice recognition uses the browser **Web Speech API** where supported.
 
-### 🔊 Voice Results
+## 🔊 Voice Results
+
 Search results can also be spoken aloud.
 
-Features:
+Features include:
+
 - Speak Results
 - Stop Voice
 - Text-to-speech output
 
-This uses the browser Speech Synthesis API.
+This functionality uses the browser **Speech Synthesis API**.
 
-### 🗂️ Category Filters
+## 🗂️ Category Filters
+
 Products can be filtered using:
 
 - All
@@ -73,8 +111,10 @@ Products can be filtered using:
 
 Clicking **All** resets the filter and displays all products.
 
-### 🛒 Shopping Cart
+## 🛒 Shopping Cart
+
 Users can:
+
 - Add products to cart
 - Increase quantity
 - Decrease quantity
@@ -84,45 +124,39 @@ Users can:
 - View cart item count
 - Proceed to Checkout interface
 
-### 👤 User Registration & Login
+## 👤 User Registration & Login
+
 New users can register before logging in.
 
 Registered users can:
+
 - Login using their credentials
 - Maintain a logged-in session
 - View their username in the navigation bar
 - Logout
 
-### ⚙️ Admin Product Management
-The Admin page allows product management.
+## ⚙️ Admin Product Management
 
-Admin functionality includes:
+The Admin page provides product management functionality.
+
+Admin features include:
+
 - Add new products
-- Product name
-- Brand
-- Category
-- Selling price
-- Original price
-- Rating
-- Description
-- Image URL
-- Battery score
-- Best Seller option
+- Enter product name
+- Enter brand
+- Select category
+- Enter selling price
+- Enter original price
+- Enter rating
+- Enter description
+- Enter image URL
+- Enter battery score
+- Select Best Seller option
 - Delete existing products
-
-### 💾 JSON Server
-JSON Server is used as a mock REST API for development.
-
-Example endpoints:
-
-```text
-http://localhost:3001/products
-http://localhost:3001/cart
-```
 
 ---
 
-## 🧰 Technologies Used
+# 🧰 Technologies Used
 
 - React.js
 - JavaScript
@@ -136,13 +170,20 @@ http://localhost:3001/cart
 - Web Speech API
 - Speech Recognition API
 - Speech Synthesis API
+- Git
+- GitHub
+- GitHub Pages
+- Render
 
 ---
 
-## 📁 Project Structure
+# 📁 Project Structure
 
 ```text
 ShopSmart-Mini-Project/
+│
+├── public/
+│   └── .gitkeep
 │
 ├── ShopSmart-React-App/
 │   │
@@ -160,11 +201,16 @@ ShopSmart-Mini-Project/
 │   │       └── clickpro-camera.jpg
 │   │
 │   ├── src/
+│   │   ├── assets/
+│   │   │
 │   │   ├── components/
 │   │   │   ├── Navbar.jsx
 │   │   │   ├── Footer.jsx
 │   │   │   ├── ProductCard.jsx
 │   │   │   └── SearchBar.jsx
+│   │   │
+│   │   ├── data/
+│   │   │   └── smartSearch.js
 │   │   │
 │   │   ├── pages/
 │   │   │   ├── Home.jsx
@@ -175,9 +221,6 @@ ShopSmart-Mini-Project/
 │   │   │   ├── Register.jsx
 │   │   │   └── NotFound.jsx
 │   │   │
-│   │   ├── data/
-│   │   │   └── smartSearch.js
-│   │   │
 │   │   ├── App.jsx
 │   │   ├── App.css
 │   │   ├── index.css
@@ -185,17 +228,31 @@ ShopSmart-Mini-Project/
 │   │
 │   ├── index.html
 │   ├── package.json
-│   └── package-lock.json
+│   ├── package-lock.json
+│   └── vite.config.js
 │
+├── .gitignore
 ├── db.json
+├── package.json
+├── Project-Links.txt
 └── README.md
 ```
 
 ---
 
-## 📦 Installation
+# 📦 Installation
 
-Clone or download the project and open it in Visual Studio Code.
+Clone the GitHub repository:
+
+```bash
+git clone https://github.com/nareshkumarshankarjo-ux/ShopSmart-AI-Shopping-Assistant.git
+```
+
+Open the project folder:
+
+```bash
+cd ShopSmart-AI-Shopping-Assistant
+```
 
 Navigate to the React application:
 
@@ -211,7 +268,13 @@ npm install
 
 ---
 
-## ▶️ Run the React Application
+# ▶️ Run the React Application
+
+Navigate to:
+
+```bash
+cd ShopSmart-React-App
+```
 
 Start the Vite development server:
 
@@ -219,25 +282,49 @@ Start the Vite development server:
 npm run dev
 ```
 
-Open:
+The local application is available at:
 
 ```text
-http://localhost:5173
+http://localhost:5173/ShopSmart-AI-Shopping-Assistant/
 ```
 
 ---
 
-## 🗄️ Run JSON Server
+# 🗄️ JSON Server
 
-Open another terminal.
+JSON Server is used as the REST API for product and shopping cart data.
 
-Run:
+## 🌐 Live API – Render
+
+API Base URL:
+
+```text
+https://shopsmart-ai-shopping-assistant.onrender.com
+```
+
+Products API:
+
+```text
+https://shopsmart-ai-shopping-assistant.onrender.com/products
+```
+
+Cart API:
+
+```text
+https://shopsmart-ai-shopping-assistant.onrender.com/cart
+```
+
+---
+
+## 💻 Local JSON Server
+
+For local development, open a separate terminal from the project root and run:
 
 ```bash
 npm run server
 ```
 
-The JSON Server should run on:
+The local JSON Server runs at:
 
 ```text
 http://localhost:3001
@@ -255,11 +342,13 @@ Cart API:
 http://localhost:3001/cart
 ```
 
-Keep both the **Vite server** and **JSON Server** running while using the application.
+When testing completely locally, keep both the **Vite development server** and **JSON Server** running.
 
 ---
 
-## 🛣️ Application Routes
+# 🛣️ Application Routes
+
+The application uses client-side routing.
 
 | Route | Page |
 |---|---|
@@ -271,9 +360,15 @@ Keep both the **Vite server** and **JSON Server** running while using the applic
 | `/register` | Registration |
 | `*` | 404 / Not Found |
 
+When deployed to GitHub Pages, the application is served from:
+
+```text
+/ShopSmart-AI-Shopping-Assistant/
+```
+
 ---
 
-## 🎙️ Voice Search Browser Support
+# 🎙️ Voice Search Browser Support
 
 Voice recognition depends on browser support.
 
@@ -281,33 +376,35 @@ For the best experience, use:
 
 **Google Chrome**
 
-The browser may request microphone permission when Voice Search is used.
+The browser may request microphone permission when **Voice Search** is used.
 
 ---
 
-## 🖼️ Product Images
+# 🖼️ Product Images
 
 Product images are stored inside:
 
 ```text
-public/products/
+ShopSmart-React-App/public/products/
 ```
 
 Example:
 
 ```text
-public/products/smartbook-air-14.jpg
+ShopSmart-React-App/public/products/smartbook-air-14.jpg
 ```
 
-The corresponding path in `db.json` is:
+The corresponding image path in `db.json` is:
 
 ```json
 "image": "/products/smartbook-air-14.jpg"
 ```
 
+The application handles the configured Vite base path so product images can also display correctly when deployed through GitHub Pages.
+
 ---
 
-## 📱 Responsive Design
+# 📱 Responsive Design
 
 ShopSmart is designed to work across:
 
@@ -318,13 +415,59 @@ ShopSmart is designed to work across:
 
 ---
 
-## 🎯 Project Objective
+# 🚀 Deployment
 
-The objective of ShopSmart is to demonstrate the development of an interactive shopping application using modern React concepts, REST API operations, intelligent product searching, voice interaction, authentication-style functionality, and shopping cart management.
+ShopSmart has both its frontend and REST API deployed online.
+
+## Frontend – GitHub Pages
+
+The React/Vite frontend is deployed using **GitHub Pages**.
+
+```text
+https://nareshkumarshankarjo-ux.github.io/ShopSmart-AI-Shopping-Assistant/
+```
+
+## Backend API – Render
+
+The JSON Server REST API is deployed using **Render**.
+
+```text
+https://shopsmart-ai-shopping-assistant.onrender.com
+```
+
+The deployed React application communicates with the online Render API for product and shopping cart data.
+
+> **Note:** A free Render service may take additional time to respond after a period of inactivity.
 
 ---
 
-## 🔮 Future Enhancements
+# 🎯 Project Objective
+
+The objective of **ShopSmart – AI Shopping Assistant** is to demonstrate the development of an interactive shopping application using modern React concepts, REST API operations, intelligent product searching, voice interaction, authentication-style functionality, shopping cart management, and cloud deployment.
+
+The project demonstrates practical use of:
+
+- React components
+- React state management
+- React Router
+- REST API integration
+- Fetch API
+- JSON Server
+- Local Storage
+- Product filtering
+- Smart search logic
+- Voice recognition
+- Speech synthesis
+- Shopping cart operations
+- Admin product management
+- Responsive web design
+- Git and GitHub
+- GitHub Pages deployment
+- Render API deployment
+
+---
+
+# 🔮 Future Enhancements
 
 Possible future improvements include:
 
@@ -340,22 +483,32 @@ Possible future improvements include:
 - Wishlist
 - Product reviews
 - Admin authentication
-- Cloud deployment
+- Product inventory management
+- Search history
+- Personalized recommendations
 
 ---
 
-## ⚠️ Development Note
+# ⚠️ Development Note
 
-This project currently uses JSON Server and browser/local-storage functionality for learning and demonstration purposes.
+This project uses **JSON Server** and browser/local-storage functionality for learning and demonstration purposes.
 
-For a production e-commerce application, authentication, passwords, user information, orders, and payment information should be handled securely through a backend server and database.
+For a production e-commerce application, authentication, passwords, user information, orders, payment information, authorization, and sensitive data should be handled securely through a production backend server and database.
 
 ---
 
-## 👨‍💻 Project
+# 👨‍💻 Developer
+
+**Nareshkumar S.**
+
+Project:
 
 **ShopSmart – AI Shopping Assistant**
 
-Built with React + Vite + JSON Server.
+Built with **React + Vite + JSON Server**.
+
+Frontend deployed with **GitHub Pages**.
+
+REST API deployed with **Render**.
 
 © 2026 ShopSmart Mini Project
