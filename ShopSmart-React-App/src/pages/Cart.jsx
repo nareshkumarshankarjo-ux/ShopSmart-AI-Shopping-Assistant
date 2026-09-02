@@ -1,4 +1,5 @@
 import React from "react";
+
 function Cart({
   cart,
   updateCartQuantity,
@@ -55,7 +56,11 @@ function Cart({
                 key={item.id}
               >
                 <img
-                  src={item.image}
+                  src={
+                    item.image?.startsWith("/")
+                      ? `${import.meta.env.BASE_URL}${item.image.slice(1)}`
+                      : item.image
+                  }
                   alt={item.name}
                 />
 
@@ -79,8 +84,7 @@ function Cart({
                     onClick={() =>
                       updateCartQuantity(
                         item,
-                        item.quantity -
-                          1
+                        item.quantity - 1
                       )
                     }
                   >
@@ -95,8 +99,7 @@ function Cart({
                     onClick={() =>
                       updateCartQuantity(
                         item,
-                        item.quantity +
-                          1
+                        item.quantity + 1
                       )
                     }
                   >
@@ -107,7 +110,7 @@ function Cart({
                 <strong>
                   ₹
                   {(
-                    item.price *
+                    Number(item.price) *
                     item.quantity
                   ).toLocaleString(
                     "en-IN"
@@ -148,13 +151,17 @@ function Cart({
                 Delivery
               </span>
 
-              <span>FREE</span>
+              <span>
+                FREE
+              </span>
             </div>
 
             <hr />
 
             <div className="cart-total">
-              <span>Total</span>
+              <span>
+                Total
+              </span>
 
               <span>
                 ₹

@@ -23,7 +23,7 @@ import NotFound from "./pages/NotFound.jsx";
 import "./App.css";
 
 const API_URL =
-  "http://localhost:3001";
+  "https://shopsmart-ai-shopping-assistant.onrender.com";
 
 function App() {
   const [products, setProducts] =

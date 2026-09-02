@@ -1,13 +1,19 @@
 import React from "react";
+
 function ProductCard({
   product,
   addToCart,
 }) {
+  const imageUrl =
+    product.image?.startsWith("/")
+      ? `${import.meta.env.BASE_URL}${product.image.slice(1)}`
+      : product.image;
+
   return (
     <article className="product-card">
       <div className="product-image">
         <img
-          src={product.image}
+          src={imageUrl}
           alt={product.name}
         />
 
