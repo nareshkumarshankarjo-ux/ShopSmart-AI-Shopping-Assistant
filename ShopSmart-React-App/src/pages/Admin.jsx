@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, {
+  useState,
+} from "react";
 
 const initialForm = {
   name: "",
@@ -8,13 +10,14 @@ const initialForm = {
   originalPrice: "",
   rating: "4.0",
   description: "",
-  image: "products/smartbook-air-14.jpg",
+  image:
+    "products/smartbook-air-14.jpg",
   batteryScore: "5",
   bestSeller: false,
 };
 
 function Admin({
-  products,
+  products = [],
   addProduct,
   deleteProduct,
 }) {
@@ -24,14 +27,18 @@ function Admin({
   const [message, setMessage] =
     useState("");
 
-  const [messageType, setMessageType] =
-    useState("");
+  const [
+    messageType,
+    setMessageType,
+  ] = useState("");
 
-  /* ==============================
-     HANDLE INPUT CHANGES
-  ============================== */
+  /* =====================================
+     HANDLE INPUT
+  ===================================== */
 
-  const handleChange = (event) => {
+  const handleChange = (
+    event
+  ) => {
     const {
       name,
       value,
@@ -39,19 +46,21 @@ function Admin({
       checked,
     } = event.target;
 
-    setFormData((current) => ({
-      ...current,
+    setFormData(
+      (current) => ({
+        ...current,
 
-      [name]:
-        type === "checkbox"
-          ? checked
-          : value,
-    }));
+        [name]:
+          type === "checkbox"
+            ? checked
+            : value,
+      })
+    );
   };
 
-  /* ==============================
+  /* =====================================
      ADD PRODUCT
-  ============================== */
+  ===================================== */
 
   const handleSubmit = async (
     event
@@ -69,7 +78,9 @@ function Admin({
         "Product name and selling price are required."
       );
 
-      setMessageType("error");
+      setMessageType(
+        "error"
+      );
 
       return;
     }
@@ -85,7 +96,9 @@ function Admin({
         formData.category,
 
       price:
-        Number(formData.price),
+        Number(
+          formData.price
+        ),
 
       originalPrice:
         Number(
@@ -94,7 +107,9 @@ function Admin({
         ),
 
       rating:
-        Number(formData.rating),
+        Number(
+          formData.rating
+        ),
 
       description:
         formData.description.trim(),
@@ -111,22 +126,38 @@ function Admin({
         formData.bestSeller,
     };
 
-    const success =
-      await addProduct(product);
+    try {
+      const success =
+        await addProduct(
+          product
+        );
 
-    if (success) {
-      setMessage(
-        "Product added successfully."
+      if (success) {
+        setMessage(
+          "Product added successfully."
+        );
+
+        setMessageType(
+          "success"
+        );
+
+        setFormData(
+          initialForm
+        );
+      } else {
+        setMessage(
+          "Unable to add product. Please check JSON Server."
+        );
+
+        setMessageType(
+          "error"
+        );
+      }
+    } catch (error) {
+      console.error(
+        error
       );
 
-      setMessageType(
-        "success"
-      );
-
-      setFormData(
-        initialForm
-      );
-    } else {
       setMessage(
         "Unable to add product. Please check JSON Server."
       );
@@ -137,9 +168,9 @@ function Admin({
     }
   };
 
-  /* ==============================
+  /* =====================================
      DELETE PRODUCT
-  ============================== */
+  ===================================== */
 
   const handleDelete = async (
     product
@@ -153,14 +184,24 @@ function Admin({
       return;
     }
 
-    await deleteProduct(
-      product.id
-    );
+    try {
+      await deleteProduct(
+        product.id
+      );
+    } catch (error) {
+      console.error(
+        error
+      );
+
+      alert(
+        "Unable to delete product."
+      );
+    }
   };
 
-  /* ==============================
+  /* =====================================
      IMAGE URL
-  ============================== */
+  ===================================== */
 
   const getImageUrl = (
     image
@@ -182,7 +223,7 @@ function Admin({
 
     return `${
       import.meta.env.BASE_URL
-    }${image.replace(
+    }${String(image).replace(
       /^\/+/,
       ""
     )}`;
@@ -190,15 +231,10 @@ function Admin({
 
   return (
     <section className="admin-page">
-
       <div className="container">
-
-        {/* ========================
-            PAGE HEADING
-        ========================= */}
+        {/* PAGE HEADING */}
 
         <div className="page-heading">
-
           <h1>
             Product Management
           </h1>
@@ -207,17 +243,12 @@ function Admin({
             Add and remove products
             using JSON Server CRUD.
           </p>
-
         </div>
 
-        {/* ========================
-            ADD PRODUCT
-        ========================= */}
+        {/* ADD PRODUCT */}
 
         <div className="admin-card">
-
           <div className="admin-card-heading">
-
             <h2>
               Add Product
             </h2>
@@ -226,7 +257,6 @@ function Admin({
               Enter the product
               details below.
             </p>
-
           </div>
 
           {message && (
@@ -243,11 +273,9 @@ function Admin({
               handleSubmit
             }
           >
-
             {/* PRODUCT NAME */}
 
             <div className="form-group">
-
               <label
                 htmlFor="name"
               >
@@ -267,13 +295,11 @@ function Admin({
                 placeholder="Example: SmartBook Pro"
                 required
               />
-
             </div>
 
             {/* BRAND */}
 
             <div className="form-group">
-
               <label
                 htmlFor="brand"
               >
@@ -292,13 +318,11 @@ function Admin({
                 }
                 placeholder="Example: ShopSmart"
               />
-
             </div>
 
             {/* CATEGORY */}
 
             <div className="form-group">
-
               <label
                 htmlFor="category"
               >
@@ -315,7 +339,6 @@ function Admin({
                   handleChange
                 }
               >
-
                 <option value="Laptop">
                   Laptop
                 </option>
@@ -339,15 +362,12 @@ function Admin({
                 <option value="Camera">
                   Camera
                 </option>
-
               </select>
-
             </div>
 
             {/* SELLING PRICE */}
 
             <div className="form-group">
-
               <label
                 htmlFor="price"
               >
@@ -368,13 +388,11 @@ function Admin({
                 min="0"
                 required
               />
-
             </div>
 
             {/* ORIGINAL PRICE */}
 
             <div className="form-group">
-
               <label
                 htmlFor="originalPrice"
               >
@@ -394,13 +412,11 @@ function Admin({
                 placeholder="42999"
                 min="0"
               />
-
             </div>
 
             {/* RATING */}
 
             <div className="form-group">
-
               <label
                 htmlFor="rating"
               >
@@ -421,13 +437,11 @@ function Admin({
                   handleChange
                 }
               />
-
             </div>
 
             {/* DESCRIPTION */}
 
             <div className="form-group admin-description">
-
               <label
                 htmlFor="description"
               >
@@ -446,13 +460,11 @@ function Admin({
                 rows="5"
                 placeholder="Enter product description"
               />
-
             </div>
 
             {/* IMAGE */}
 
             <div className="form-group">
-
               <label
                 htmlFor="image"
               >
@@ -471,13 +483,11 @@ function Admin({
                 }
                 placeholder="products/example.jpg"
               />
-
             </div>
 
             {/* BATTERY SCORE */}
 
             <div className="form-group">
-
               <label
                 htmlFor="batteryScore"
               >
@@ -497,15 +507,12 @@ function Admin({
                   handleChange
                 }
               />
-
             </div>
 
             {/* BEST SELLER */}
 
             <div className="admin-checkbox-row">
-
               <label>
-
                 <input
                   type="checkbox"
                   name="bestSeller"
@@ -520,38 +527,27 @@ function Admin({
                 <span>
                   Best Seller
                 </span>
-
               </label>
-
             </div>
 
             {/* ADD BUTTON */}
 
             <div className="admin-submit-row">
-
               <button
                 className="btn btn-primary"
                 type="submit"
               >
                 + Add Product
               </button>
-
             </div>
-
           </form>
-
         </div>
 
-        {/* ========================
-            EXISTING PRODUCTS
-        ========================= */}
+        {/* EXISTING PRODUCTS */}
 
         <div className="admin-card admin-products-card">
-
           <div className="admin-products-header">
-
             <div>
-
               <h2>
                 Existing Products
               </h2>
@@ -562,23 +558,18 @@ function Admin({
                   {products.length}
                 </strong>
               </p>
-
             </div>
-
           </div>
 
           {products.length ===
           0 ? (
             <div className="admin-empty">
-
               <p>
                 No products found.
               </p>
-
             </div>
           ) : (
             <div className="admin-product-grid">
-
               {products.map(
                 (product) => (
                   <article
@@ -587,11 +578,9 @@ function Admin({
                       product.id
                     }
                   >
-
                     {/* IMAGE */}
 
                     <div className="admin-product-image-wrap">
-
                       <img
                         src={getImageUrl(
                           product.image
@@ -600,13 +589,11 @@ function Admin({
                           product.name
                         }
                       />
-
                     </div>
 
                     {/* DETAILS */}
 
                     <div className="admin-product-info">
-
                       <span className="admin-product-category">
                         {
                           product.category
@@ -629,7 +616,6 @@ function Admin({
                       )}
 
                       <div className="admin-product-meta">
-
                         <strong className="admin-product-price">
                           ₹
                           {Number(
@@ -645,9 +631,7 @@ function Admin({
                             product.rating
                           }
                         </span>
-
                       </div>
-
                     </div>
 
                     {/* DELETE */}
@@ -663,18 +647,13 @@ function Admin({
                     >
                       Delete
                     </button>
-
                   </article>
                 )
               )}
-
             </div>
           )}
-
         </div>
-
       </div>
-
     </section>
   );
 }

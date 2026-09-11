@@ -1,7 +1,7 @@
 {
   "products": [
     {
-      "id": 1,
+      "id": "1",
       "name": "SmartBook Air 14",
       "brand": "ShopSmart",
       "category": "Laptop",
@@ -14,7 +14,7 @@
       "description": "Lightweight 14-inch laptop with excellent battery life for students, office work and everyday use."
     },
     {
-      "id": 2,
+      "id": "2",
       "name": "ProBook X15",
       "brand": "ShopSmart",
       "category": "Laptop",
@@ -27,7 +27,7 @@
       "description": "Powerful laptop designed for programming, multitasking, office work and professional users."
     },
     {
-      "id": 3,
+      "id": "3",
       "name": "StudentBook Lite",
       "brand": "ShopSmart",
       "category": "Laptop",
@@ -40,7 +40,7 @@
       "description": "Affordable student laptop suitable for online classes, browsing, documents and basic programming."
     },
     {
-      "id": 4,
+      "id": "4",
       "name": "SmartPhone Neo 5G",
       "brand": "ShopSmart",
       "category": "Mobile",
@@ -53,7 +53,7 @@
       "description": "Modern 5G smartphone with fast performance, bright display, good camera and long battery life."
     },
     {
-      "id": 5,
+      "id": "5",
       "name": "Vision Pro Mobile",
       "brand": "ShopSmart",
       "category": "Mobile",
@@ -66,7 +66,7 @@
       "description": "Premium smartphone with powerful performance, high-quality display and advanced camera features."
     },
     {
-      "id": 6,
+      "id": "6",
       "name": "SoundMax Wireless",
       "brand": "ShopSmart",
       "category": "Headphone",
@@ -79,7 +79,7 @@
       "description": "Wireless headphones with clear audio, comfortable ear cushions and long battery backup."
     },
     {
-      "id": 7,
+      "id": "7",
       "name": "BeatLite Headphones",
       "brand": "ShopSmart",
       "category": "Headphone",
@@ -92,7 +92,7 @@
       "description": "Lightweight headphones with balanced sound quality for music, online classes and daily use."
     },
     {
-      "id": 8,
+      "id": "8",
       "name": "FitWatch Pro",
       "brand": "ShopSmart",
       "category": "Watch",
@@ -105,7 +105,7 @@
       "description": "Smart fitness watch with activity tracking, heart-rate monitoring, notifications and sports modes."
     },
     {
-      "id": 9,
+      "id": "9",
       "name": "StudyTab 10",
       "brand": "ShopSmart",
       "category": "Tablet",
@@ -118,7 +118,7 @@
       "description": "10-inch tablet suitable for studying, video classes, entertainment, browsing and productivity."
     },
     {
-      "id": 10,
+      "id": "10",
       "name": "ClickPro Camera",
       "brand": "ShopSmart",
       "category": "Camera",
@@ -131,5 +131,6 @@
       "description": "Digital camera designed for travel photography, family photos, videos and content creation."
     }
   ],
-  "cart": []
+  "cart": [],
+  "$schema": "./node_modules/json-server/schema.json"
 }

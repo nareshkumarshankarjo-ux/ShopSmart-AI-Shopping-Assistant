@@ -5,37 +5,72 @@ import {
 } from "react-router-dom";
 
 function Cart({
-  cart,
+  cart = [],
   updateCartQuantity,
   removeFromCart,
 }) {
-  const navigate =
-    useNavigate();
+  const navigate = useNavigate();
 
   const total = cart.reduce(
     (sum, item) =>
       sum +
-      Number(item.price) *
-        Number(item.quantity),
+      Number(item.price || 0) *
+        Number(item.quantity || 1),
     0
   );
 
-  const cartCount =
-    cart.reduce(
-      (totalItems, item) =>
-        totalItems +
-        Number(item.quantity),
-      0
+  const cartCount = cart.reduce(
+    (totalItems, item) =>
+      totalItems +
+      Number(item.quantity || 1),
+    0
+  );
+
+  const getImageUrl = (image) => {
+    if (!image) {
+      return "";
+    }
+
+    if (
+      image.startsWith("http://") ||
+      image.startsWith("https://")
+    ) {
+      return image;
+    }
+
+    return `${import.meta.env.BASE_URL}${String(
+      image
+    ).replace(/^\/+/, "")}`;
+  };
+
+  const handleDecrease = (item) => {
+    const nextQuantity =
+      Number(item.quantity || 1) - 1;
+
+    if (nextQuantity <= 0) {
+      removeFromCart(item.id);
+      return;
+    }
+
+    updateCartQuantity(
+      item,
+      nextQuantity
     );
+  };
+
+  const handleIncrease = (item) => {
+    updateCartQuantity(
+      item,
+      Number(item.quantity || 1) + 1
+    );
+  };
 
   if (cart.length === 0) {
     return (
       <section className="page-container">
         <div className="container">
           <div className="empty-state">
-            <h1>
-              🛒
-            </h1>
+            <h1>🛒</h1>
 
             <h2>
               Your cart is empty
@@ -47,11 +82,10 @@ function Cart({
             </p>
 
             <button
+              type="button"
               className="checkout-btn"
               onClick={() =>
-                navigate(
-                  "/products"
-                )
+                navigate("/products")
               }
             >
               Continue Shopping
@@ -65,7 +99,6 @@ function Cart({
   return (
     <section className="page-container">
       <div className="container">
-
         <div className="page-heading">
           <h1>
             Shopping Cart
@@ -78,122 +111,99 @@ function Cart({
         </div>
 
         <div className="cart-layout">
-
-          {/* CART PRODUCTS */}
           <div className="cart-items">
+            {cart.map((item) => {
+              const quantity =
+                Number(
+                  item.quantity || 1
+                );
 
-            {cart.map((item) => (
-              <div
-                className="cart-item"
-                key={item.id}
-              >
+              const itemTotal =
+                Number(
+                  item.price || 0
+                ) * quantity;
 
-                {/* PRODUCT IMAGE */}
-                <img
-                  src={
-                    item.image?.startsWith(
-                      "/"
-                    )
-                      ? `${
-                          import.meta.env
-                            .BASE_URL
-                        }${item.image.slice(
-                          1
-                        )}`
-                      : item.image
-                  }
-                  alt={item.name}
-                />
+              return (
+                <div
+                  className="cart-item"
+                  key={item.id}
+                >
+                  <img
+                    src={getImageUrl(
+                      item.image
+                    )}
+                    alt={item.name}
+                  />
 
-                {/* PRODUCT DETAILS */}
-                <div className="cart-info">
-                  <h3>
-                    {item.name}
-                  </h3>
+                  <div className="cart-info">
+                    <h3>
+                      {item.name}
+                    </h3>
 
-                  <p>
+                    <p>
+                      ₹
+                      {Number(
+                        item.price || 0
+                      ).toLocaleString(
+                        "en-IN"
+                      )}
+                    </p>
+                  </div>
+
+                  <div className="quantity">
+                    <button
+                      type="button"
+                      aria-label={`Decrease ${item.name} quantity`}
+                      onClick={() =>
+                        handleDecrease(
+                          item
+                        )
+                      }
+                    >
+                      −
+                    </button>
+
+                    <span>
+                      {quantity}
+                    </span>
+
+                    <button
+                      type="button"
+                      aria-label={`Increase ${item.name} quantity`}
+                      onClick={() =>
+                        handleIncrease(
+                          item
+                        )
+                      }
+                    >
+                      +
+                    </button>
+                  </div>
+
+                  <strong>
                     ₹
-                    {Number(
-                      item.price
-                    ).toLocaleString(
+                    {itemTotal.toLocaleString(
                       "en-IN"
                     )}
-                  </p>
-                </div>
-
-                {/* QUANTITY CONTROLS */}
-                <div className="quantity">
+                  </strong>
 
                   <button
                     type="button"
+                    className="delete-btn"
                     onClick={() =>
-                      updateCartQuantity(
-                        item,
-                        Number(
-                          item.quantity
-                        ) - 1
+                      removeFromCart(
+                        item.id
                       )
                     }
                   >
-                    -
+                    Remove
                   </button>
-
-                  <span>
-                    {item.quantity}
-                  </span>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      updateCartQuantity(
-                        item,
-                        Number(
-                          item.quantity
-                        ) + 1
-                      )
-                    }
-                  >
-                    +
-                  </button>
-
                 </div>
-
-                {/* ITEM TOTAL */}
-                <strong>
-                  ₹
-                  {(
-                    Number(
-                      item.price
-                    ) *
-                    Number(
-                      item.quantity
-                    )
-                  ).toLocaleString(
-                    "en-IN"
-                  )}
-                </strong>
-
-                {/* REMOVE BUTTON */}
-                <button
-                  type="button"
-                  className="delete-btn"
-                  onClick={() =>
-                    removeFromCart(
-                      item.id
-                    )
-                  }
-                >
-                  Remove
-                </button>
-
-              </div>
-            ))}
-
+              );
+            })}
           </div>
 
-          {/* ORDER SUMMARY */}
           <aside className="cart-summary">
-
             <h2>
               Order Summary
             </h2>
@@ -244,9 +254,7 @@ function Cart({
             >
               Proceed to Checkout
             </button>
-
           </aside>
-
         </div>
       </div>
     </section>

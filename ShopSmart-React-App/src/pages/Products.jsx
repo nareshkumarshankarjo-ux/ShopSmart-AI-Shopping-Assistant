@@ -4,241 +4,608 @@ import React, {
 } from "react";
 
 import {
-  Link,
+  useNavigate,
 } from "react-router-dom";
 
-import ProductCard from "../components/ProductCard.jsx";
-
-import {
-  smartSearch,
-} from "../data/smartSearch.js";
-
-const categories = [
-  "All",
-  "Laptop",
-  "Mobile",
-  "Headphone",
-  "Watch",
-  "Tablet",
-  "Camera",
-];
+import ProductCard from "../components/ProductCard";
 
 function Products({
   products = [],
-  loading = false,
   addToCart,
   isLoggedIn,
   compareItems = [],
   toggleCompare,
-  clearCompare,
 }) {
-  const [query, setQuery] =
+  const navigate = useNavigate();
+
+  const [searchTerm, setSearchTerm] =
     useState("");
 
-  const [category, setCategory] =
-    useState("All");
+  const [
+    selectedCategory,
+    setSelectedCategory,
+  ] = useState("All");
 
-  /* =========================
-     SMART SEARCH RESULT
-  ========================= */
+  const [
+    recommendedProduct,
+    setRecommendedProduct,
+  ] = useState(null);
 
-  const searchData =
-    useMemo(() => {
-      if (
-        !query.trim()
-      ) {
-        let normalProducts =
-          [...products];
+  const [voiceStatus, setVoiceStatus] =
+    useState("");
 
-        if (
-          category !==
-          "All"
-        ) {
-          normalProducts =
-            normalProducts.filter(
-              (product) =>
-                product.category ===
-                category
-            );
-        }
+  const categories = [
+    "All",
+    "Laptop",
+    "Mobile",
+    "Headphone",
+    "Watch",
+    "Tablet",
+    "Camera",
+  ];
 
-        return {
-          results:
-            normalProducts,
+  const normalizeText = (value) =>
+    String(value || "")
+      .toLowerCase()
+      .trim();
 
-          recommendedProduct:
-            null,
+  const extractBudget = (query) => {
+    const normalized =
+      normalizeText(query).replace(
+        /,/g,
+        ""
+      );
 
-          reason: "",
-        };
-      }
+    const budgetMatch =
+      normalized.match(
+        /(?:under|below|less than|within|max|budget)\s*₹?\s*(\d{3,7})/
+      );
 
-      const smartResult =
-        smartSearch(
-          products,
-          query
-        );
+    if (budgetMatch) {
+      return Number(
+        budgetMatch[1]
+      );
+    }
 
-      let filtered =
-        smartResult.results;
+    return null;
+  };
 
-      if (
-        category !==
-        "All"
-      ) {
-        filtered =
-          filtered.filter(
-            (product) =>
-              product.category ===
-              category
-          );
-      }
+  const detectCategory = (query) => {
+    const text =
+      normalizeText(query);
 
-      const recommended =
-        filtered.length > 0
-          ? filtered[0]
-          : null;
-
-      return {
-        results:
-          filtered,
-
-        recommendedProduct:
-          recommended,
-
-        reason:
-          recommended
-            ? smartResult.reason
-            : "",
-      };
-    }, [
-      products,
-      query,
-      category,
-    ]);
-
-  const filteredProducts =
-    searchData.results;
-
-  const recommendedProduct =
-    searchData.recommendedProduct;
-
-  const recommendationReason =
-    searchData.reason;
-
-  /* =========================
-     VOICE SEARCH
-  ========================= */
-
-  const handleVoiceSearch =
-    () => {
-      const Recognition =
-        window.SpeechRecognition ||
-        window.webkitSpeechRecognition;
-
-      if (!Recognition) {
-        alert(
-          "Voice Search is not supported in this browser. Please use Chrome or Edge."
-        );
-
-        return;
-      }
-
-      const recognition =
-        new Recognition();
-
-      recognition.lang =
-        "en-IN";
-
-      recognition.interimResults =
-        false;
-
-      recognition.continuous =
-        false;
-
-      recognition.onresult =
-        (event) => {
-          const speech =
-            event.results[0][0]
-              .transcript;
-
-          setQuery(
-            speech
-          );
-        };
-
-      recognition.onerror =
-        () => {
-          alert(
-            "Unable to capture voice. Please try again."
-          );
-        };
-
-      recognition.start();
+    const categoryKeywords = {
+      Laptop: [
+        "laptop",
+        "notebook",
+        "computer",
+      ],
+      Mobile: [
+        "mobile",
+        "phone",
+        "smartphone",
+        "5g",
+      ],
+      Headphone: [
+        "headphone",
+        "headphones",
+        "earphone",
+        "audio",
+      ],
+      Watch: [
+        "watch",
+        "smartwatch",
+        "fitness watch",
+      ],
+      Tablet: [
+        "tablet",
+        "tab",
+      ],
+      Camera: [
+        "camera",
+        "photography",
+      ],
     };
 
-  /* =========================
-     VOICE RESULTS
-  ========================= */
-
-  const handleVoiceResults =
-    () => {
+    for (const [
+      category,
+      keywords,
+    ] of Object.entries(
+      categoryKeywords
+    )) {
       if (
-        !(
-          "speechSynthesis" in
-          window
+        keywords.some((keyword) =>
+          text.includes(keyword)
         )
       ) {
-        alert(
-          "Voice Results are not supported in this browser."
-        );
-
-        return;
+        return category;
       }
+    }
 
-      window.speechSynthesis.cancel();
+    return null;
+  };
 
-      if (
-        !recommendedProduct
-      ) {
-        const speech =
-          new SpeechSynthesisUtterance(
-            "No matching products found."
+  const getFilteredProducts = (
+    query,
+    category
+  ) => {
+    const text =
+      normalizeText(query);
+
+    const detectedCategory =
+      detectCategory(text);
+
+    const budget =
+      extractBudget(text);
+
+    const filterCategory =
+      category !== "All"
+        ? category
+        : detectedCategory;
+
+    return products.filter(
+      (product) => {
+        const productText = [
+          product.name,
+          product.brand,
+          product.category,
+          product.description,
+        ]
+          .map(normalizeText)
+          .join(" ");
+
+        const categoryMatches =
+          !filterCategory ||
+          normalizeText(
+            product.category
+          ) ===
+            normalizeText(
+              filterCategory
+            );
+
+        const budgetMatches =
+          !budget ||
+          Number(
+            product.price || 0
+          ) <= budget;
+
+        const hasStructuredSearch =
+          Boolean(
+            detectedCategory ||
+              budget
           );
 
-        window.speechSynthesis.speak(
-          speech
-        );
+        const textMatches =
+          !text ||
+          hasStructuredSearch ||
+          productText.includes(text);
 
-        return;
+        return (
+          categoryMatches &&
+          budgetMatches &&
+          textMatches
+        );
+      }
+    );
+  };
+
+  const filteredProducts =
+    useMemo(
+      () =>
+        getFilteredProducts(
+          searchTerm,
+          selectedCategory
+        ),
+      [
+        products,
+        searchTerm,
+        selectedCategory,
+      ]
+    );
+
+  const chooseRecommendation = (
+    matchingProducts,
+    query
+  ) => {
+    if (
+      matchingProducts.length === 0
+    ) {
+      return null;
+    }
+
+    const text =
+      normalizeText(query);
+
+    const wantsBattery =
+      text.includes("battery");
+
+    const wantsBest =
+      text.includes("best") ||
+      text.includes("better");
+
+    const wantsBudget =
+      Boolean(
+        extractBudget(text)
+      ) ||
+      text.includes("budget") ||
+      text.includes("cheap") ||
+      text.includes("affordable");
+
+    const sorted = [
+      ...matchingProducts,
+    ].sort((a, b) => {
+      let scoreA = 0;
+      let scoreB = 0;
+
+      if (wantsBattery) {
+        scoreA +=
+          Number(
+            a.batteryScore || 0
+          ) * 10;
+
+        scoreB +=
+          Number(
+            b.batteryScore || 0
+          ) * 10;
       }
 
-      const message =
-        recommendationReason ||
-        `${recommendedProduct.name} is the recommended product.`;
+      if (wantsBest) {
+        scoreA +=
+          Number(
+            a.rating || 0
+          ) * 5;
 
-      const speech =
-        new SpeechSynthesisUtterance(
-          message
-        );
+        scoreB +=
+          Number(
+            b.rating || 0
+          ) * 5;
+      }
 
-      speech.lang =
-        "en-IN";
+      if (a.bestSeller) {
+        scoreA += 4;
+      }
 
-      window.speechSynthesis.speak(
-        speech
+      if (b.bestSeller) {
+        scoreB += 4;
+      }
+
+      if (wantsBudget) {
+        scoreA +=
+          100000 /
+          Math.max(
+            Number(a.price || 1),
+            1
+          );
+
+        scoreB +=
+          100000 /
+          Math.max(
+            Number(b.price || 1),
+            1
+          );
+      }
+
+      if (
+        !wantsBattery &&
+        !wantsBest &&
+        !wantsBudget
+      ) {
+        scoreA +=
+          Number(
+            a.rating || 0
+          ) * 10 +
+          Number(
+            a.batteryScore || 0
+          );
+
+        scoreB +=
+          Number(
+            b.rating || 0
+          ) * 10 +
+          Number(
+            b.batteryScore || 0
+          );
+      }
+
+      return scoreB - scoreA;
+    });
+
+    return sorted[0];
+  };
+
+  const buildRecommendationText = (
+    product,
+    query
+  ) => {
+    if (!product) {
+      return "";
+    }
+
+    const text =
+      normalizeText(query);
+
+    const reasons = [];
+
+    const detectedCategory =
+      detectCategory(text);
+
+    const budget =
+      extractBudget(text);
+
+    if (detectedCategory) {
+      reasons.push(
+        `it matches the ${product.category} category`
+      );
+    }
+
+    if (
+      budget &&
+      Number(product.price) <=
+        budget
+    ) {
+      reasons.push(
+        `it is within your ₹${budget.toLocaleString(
+          "en-IN"
+        )} budget`
+      );
+    }
+
+    if (
+      text.includes("battery") &&
+      product.batteryScore
+    ) {
+      reasons.push(
+        `it has a strong battery score of ${product.batteryScore}/10`
+      );
+    }
+
+    if (
+      text.includes("best") &&
+      product.rating
+    ) {
+      reasons.push(
+        `it has a rating of ${product.rating}`
+      );
+    }
+
+    if (
+      reasons.length === 0
+    ) {
+      reasons.push(
+        "it is one of the strongest matches for your search"
+      );
+    }
+
+    return `${
+      product.name
+    } is recommended because ${reasons.join(
+      " and "
+    )}.`;
+  };
+
+  const updateRecommendation = (
+    query,
+    category = selectedCategory
+  ) => {
+    const matches =
+      getFilteredProducts(
+        query,
+        category
+      );
+
+    if (
+      !query.trim() &&
+      category === "All"
+    ) {
+      setRecommendedProduct(
+        null
+      );
+
+      return;
+    }
+
+    setRecommendedProduct(
+      chooseRecommendation(
+        matches,
+        query
+      )
+    );
+  };
+
+  const handleSearchChange = (
+    event
+  ) => {
+    const value =
+      event.target.value;
+
+    setSearchTerm(value);
+
+    updateRecommendation(
+      value
+    );
+  };
+
+  const handleCategoryChange = (
+    category
+  ) => {
+    setSelectedCategory(
+      category
+    );
+
+    updateRecommendation(
+      searchTerm,
+      category
+    );
+  };
+
+  const handleVoiceSearch = () => {
+    const SpeechRecognition =
+      window.SpeechRecognition ||
+      window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      alert(
+        "Voice Search is not supported in this browser. Please use Google Chrome or type your search."
+      );
+
+      return;
+    }
+
+    window.speechSynthesis?.cancel();
+
+    const recognition =
+      new SpeechRecognition();
+
+    recognition.lang = "en-IN";
+
+    recognition.interimResults =
+      false;
+
+    recognition.maxAlternatives =
+      1;
+
+    setVoiceStatus(
+      "Listening..."
+    );
+
+    recognition.start();
+
+    recognition.onresult = (
+      event
+    ) => {
+      const transcript =
+        event.results[0][0]
+          .transcript;
+
+      setSearchTerm(
+        transcript
+      );
+
+      setSelectedCategory(
+        "All"
+      );
+
+      updateRecommendation(
+        transcript,
+        "All"
+      );
+
+      setVoiceStatus(
+        `You said: "${transcript}"`
       );
     };
 
+    recognition.onerror = () => {
+      setVoiceStatus("");
+
+      alert(
+        "Voice Search could not understand the request. Please try again."
+      );
+    };
+
+    recognition.onend = () => {
+      setTimeout(() => {
+        setVoiceStatus("");
+      }, 2500);
+    };
+  };
+
+  const handleVoiceResults = () => {
+    if (
+      !recommendedProduct
+    ) {
+      alert(
+        "Search for a product first. Then click Voice Results."
+      );
+
+      return;
+    }
+
+    if (
+      !(
+        "speechSynthesis" in
+        window
+      )
+    ) {
+      alert(
+        "Voice Results are not supported in this browser."
+      );
+
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+
+    const recommendationText =
+      buildRecommendationText(
+        recommendedProduct,
+        searchTerm
+      );
+
+    const message =
+      new SpeechSynthesisUtterance(
+        recommendationText
+      );
+
+    message.lang = "en-IN";
+    message.rate = 0.95;
+
+    window.speechSynthesis.speak(
+      message
+    );
+  };
+
+  const handleClearSearch = () => {
+    window.speechSynthesis?.cancel();
+
+    setSearchTerm("");
+
+    setSelectedCategory(
+      "All"
+    );
+
+    setRecommendedProduct(
+      null
+    );
+
+    setVoiceStatus("");
+  };
+
+  const handleCompareNow = () => {
+    if (
+      compareItems.length !== 2
+    ) {
+      alert(
+        "Please select exactly 2 products to compare."
+      );
+
+      return;
+    }
+
+    navigate("/compare");
+  };
+
+  const clearCompareSelection =
+    () => {
+      [...compareItems].forEach(
+        (item) =>
+          toggleCompare(item)
+      );
+    };
+
+  const canClear =
+    Boolean(
+      searchTerm.trim()
+    ) ||
+    selectedCategory !== "All" ||
+    Boolean(
+      recommendedProduct
+    );
+
   return (
-    <section className="page-section products-page">
-
+    <section className="page-container products-page">
       <div className="container">
-
-        {/* HEADING */}
-
         <div className="page-heading">
-
           <h1>
             ShopSmart Products
           </h1>
@@ -248,32 +615,22 @@ function Products({
             based on your needs,
             budget and preferences.
           </p>
-
         </div>
 
-        {/* SEARCH */}
-
         <div className="search-panel">
-
           <input
             type="text"
             className="search-input"
-            value={
-              query
-            }
-            onChange={(
-              event
-            ) =>
-              setQuery(
-                event.target.value
-              )
+            value={searchTerm}
+            onChange={
+              handleSearchChange
             }
             placeholder='Try: "budget laptop under 40000 with best battery"'
           />
 
           <button
             type="button"
-            className="btn btn-outline"
+            className="voice-btn"
             onClick={
               handleVoiceSearch
             }
@@ -283,7 +640,7 @@ function Products({
 
           <button
             type="button"
-            className="btn btn-outline"
+            className="voice-results-btn"
             onClick={
               handleVoiceResults
             }
@@ -291,52 +648,55 @@ function Products({
             🔊 Voice Results
           </button>
 
+          <button
+            type="button"
+            className="clear-search-btn"
+            onClick={
+              handleClearSearch
+            }
+            disabled={!canClear}
+          >
+            ✕ Clear
+          </button>
         </div>
 
-        {/* FILTER */}
+        {voiceStatus && (
+          <p className="voice-status">
+            {voiceStatus}
+          </p>
+        )}
 
         <div className="filter-bar">
-
           {categories.map(
-            (item) => (
+            (category) => (
               <button
                 type="button"
-                key={
-                  item
-                }
+                key={category}
                 className={`filter-btn ${
-                  category ===
-                  item
+                  selectedCategory ===
+                  category
                     ? "active"
                     : ""
                 }`}
                 onClick={() =>
-                  setCategory(
-                    item
+                  handleCategoryChange(
+                    category
                   )
                 }
               >
-                {
-                  item
-                }
+                {category}
               </button>
             )
           )}
-
         </div>
 
-        {/* AI RECOMMENDATION */}
-
-        {query.trim() &&
-          recommendedProduct && (
+        {recommendedProduct && (
           <div className="ai-search-recommendation">
-
             <div className="ai-recommendation-icon">
               🤖
             </div>
 
             <div className="ai-recommendation-content">
-
               <span className="ai-label">
                 ShopSmart AI Recommended
               </span>
@@ -348,13 +708,13 @@ function Products({
               </h2>
 
               <p>
-                {
-                  recommendationReason
-                }
+                {buildRecommendationText(
+                  recommendedProduct,
+                  searchTerm
+                )}
               </p>
 
               <div className="ai-recommendation-stats">
-
                 <span>
                   💰 ₹
                   {Number(
@@ -371,30 +731,23 @@ function Products({
                   }
                 </span>
 
-                <span>
-                  🔋{" "}
-                  {
-                    recommendedProduct.batteryScore ||
-                    "N/A"
-                  }
-                  /10
-                </span>
-
+                {recommendedProduct.batteryScore && (
+                  <span>
+                    🔋{" "}
+                    {
+                      recommendedProduct.batteryScore
+                    }
+                    /10
+                  </span>
+                )}
               </div>
-
             </div>
-
           </div>
         )}
 
-        {/* COMPARE TOOLBAR */}
-
-        {compareItems.length >
-          0 && (
+        {compareItems.length > 0 && (
           <div className="compare-toolbar">
-
             <div className="compare-toolbar-info">
-
               <strong>
                 ⚖ Compare Products
               </strong>
@@ -405,145 +758,112 @@ function Products({
                 }
                 /2 selected
               </span>
-
             </div>
 
             <div className="compare-selected-products">
-
               {compareItems.map(
-                (product) => (
+                (item) => (
                   <span
-                    key={
-                      product.id
-                    }
                     className="compare-selected-name"
+                    key={item.id}
                   >
-                    {
-                      product.name
-                    }
+                    {item.name}
                   </span>
                 )
               )}
-
             </div>
 
             <div className="compare-toolbar-actions">
-
-              {compareItems.length ===
-                2 && (
-                <Link
-                  to="/compare"
-                  className="btn btn-primary"
-                >
-                  Compare Now
-                </Link>
-              )}
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={
+                  handleCompareNow
+                }
+                disabled={
+                  compareItems.length !==
+                  2
+                }
+              >
+                Compare Now
+              </button>
 
               <button
                 type="button"
                 className="btn btn-outline"
                 onClick={
-                  clearCompare
+                  clearCompareSelection
                 }
               >
                 Clear
               </button>
-
             </div>
-
           </div>
         )}
 
-        {/* LOADING */}
+        <p className="product-result-count">
+          {filteredProducts.length}{" "}
+          {filteredProducts.length ===
+          1
+            ? "product"
+            : "products"}{" "}
+          found
+        </p>
 
-        {loading ? (
-          <div className="loading">
-
-            Loading products...
-
+        {filteredProducts.length >
+        0 ? (
+          <div className="products-grid">
+            {filteredProducts.map(
+              (product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  addToCart={
+                    addToCart
+                  }
+                  isLoggedIn={
+                    isLoggedIn
+                  }
+                  compareItems={
+                    compareItems
+                  }
+                  toggleCompare={
+                    toggleCompare
+                  }
+                  isRecommended={
+                    recommendedProduct?.id ===
+                    product.id
+                  }
+                />
+              )
+            )}
           </div>
-        ) : filteredProducts.length ===
-          0 ? (
+        ) : (
           <div className="empty-state">
+            <h1>🔍</h1>
 
             <h2>
-              No Products Found
+              No products found
             </h2>
 
             <p>
-              Try another search
-              phrase or category.
+              Try another search or
+              click Clear to see all
+              products.
             </p>
 
             <button
               type="button"
-              className="btn btn-primary"
-              onClick={() => {
-                setQuery("");
-                setCategory(
-                  "All"
-                );
-              }}
+              className="checkout-btn"
+              onClick={
+                handleClearSearch
+              }
             >
-              Show All Products
+              Clear Search
             </button>
-
           </div>
-        ) : (
-          <>
-
-            <div className="product-result-count">
-
-              {
-                filteredProducts.length
-              }{" "}
-              product
-              {filteredProducts.length !==
-              1
-                ? "s"
-                : ""}{" "}
-              found
-
-            </div>
-
-            <div className="products-grid">
-
-              {filteredProducts.map(
-                (product) => (
-                  <ProductCard
-                    key={
-                      product.id
-                    }
-                    product={
-                      product
-                    }
-                    addToCart={
-                      addToCart
-                    }
-                    isLoggedIn={
-                      isLoggedIn
-                    }
-                    compareItems={
-                      compareItems
-                    }
-                    toggleCompare={
-                      toggleCompare
-                    }
-                    isRecommended={
-                      recommendedProduct?.id ===
-                      product.id
-                    }
-                  />
-                )
-              )}
-
-            </div>
-
-          </>
         )}
-
       </div>
-
     </section>
   );
 }
