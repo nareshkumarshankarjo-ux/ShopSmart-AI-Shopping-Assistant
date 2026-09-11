@@ -1,353 +1,549 @@
-import React, { useState } from "react";
-
-import ProductCard from "../components/ProductCard.jsx";
-import SearchBar from "../components/SearchBar.jsx";
+import React, {
+  useMemo,
+  useState,
+} from "react";
 
 import {
-  smartProductSearch,
+  Link,
+} from "react-router-dom";
+
+import ProductCard from "../components/ProductCard.jsx";
+
+import {
+  smartSearch,
 } from "../data/smartSearch.js";
 
+const categories = [
+  "All",
+  "Laptop",
+  "Mobile",
+  "Headphone",
+  "Watch",
+  "Tablet",
+  "Camera",
+];
+
 function Products({
-  products,
-  loading,
+  products = [],
+  loading = false,
   addToCart,
+  isLoggedIn,
+  compareItems = [],
+  toggleCompare,
+  clearCompare,
 }) {
-  const [
-    filteredProducts,
-    setFilteredProducts,
-  ] = useState(null);
+  const [query, setQuery] =
+    useState("");
 
   const [category, setCategory] =
     useState("All");
 
-  const [message, setMessage] =
-    useState("");
+  /* =========================
+     SMART SEARCH RESULT
+  ========================= */
 
-  const [lastSearch, setLastSearch] =
-    useState("");
+  const searchData =
+    useMemo(() => {
+      if (
+        !query.trim()
+      ) {
+        let normalProducts =
+          [...products];
 
-  const categories = [
-    "All",
-    ...new Set(
-      products.map(
-        (product) =>
-          product.category
-      )
-    ),
-  ];
+        if (
+          category !==
+          "All"
+        ) {
+          normalProducts =
+            normalProducts.filter(
+              (product) =>
+                product.category ===
+                category
+            );
+        }
 
-  // =========================
-  // SMART SEARCH
-  // =========================
+        return {
+          results:
+            normalProducts,
 
-  const handleSmartSearch = (
-    searchQuery
-  ) => {
-    const query =
-      searchQuery.trim();
+          recommendedProduct:
+            null,
 
-    // Search box empty
-    // Show all products again
-    if (!query) {
-      setFilteredProducts(null);
-      setCategory("All");
-      setMessage("");
-      setLastSearch("");
-      return;
-    }
+          reason: "",
+        };
+      }
 
-    const result =
-      smartProductSearch(
-        products,
-        query
-      );
-
-    setFilteredProducts(result);
-
-    // Keep All selected while
-    // displaying smart search results
-    setCategory("All");
-
-    setLastSearch(query);
-
-    if (result.length > 0) {
-      setMessage(
-        `Smart Search found ${result.length} suitable product(s).`
-      );
-    } else {
-      setMessage(
-        "No suitable products found."
-      );
-    }
-  };
-
-  // =========================
-  // CATEGORY FILTER
-  // =========================
-
-  const handleCategoryClick = (
-    selectedCategory
-  ) => {
-    setCategory(
-      selectedCategory
-    );
-
-    // IMPORTANT:
-    // Clicking All resets search
-    if (
-      selectedCategory === "All"
-    ) {
-      setFilteredProducts(null);
-      setMessage("");
-      setLastSearch("");
-      return;
-    }
-
-    // Category selection should
-    // search from ALL products
-    const categoryProducts =
-      products.filter(
-        (product) =>
-          product.category ===
-          selectedCategory
-      );
-
-    setFilteredProducts(
-      categoryProducts
-    );
-
-    setMessage("");
-    setLastSearch("");
-  };
-
-  // =========================
-  // DISPLAY PRODUCTS
-  // =========================
-
-  const displayedProducts =
-    filteredProducts !== null
-      ? filteredProducts
-      : products;
-
-  // =========================
-  // SPEAK RESULTS
-  // =========================
-
-  const speakResults = () => {
-    if (
-      !(
-        "speechSynthesis" in
-        window
-      )
-    ) {
-      alert(
-        "Voice output is not supported in this browser."
-      );
-      return;
-    }
-
-    window.speechSynthesis.cancel();
-
-    if (
-      displayedProducts.length ===
-      0
-    ) {
-      const speech =
-        new SpeechSynthesisUtterance(
-          "Sorry. I could not find any suitable products."
+      const smartResult =
+        smartSearch(
+          products,
+          query
         );
 
-      speech.lang = "en-IN";
+      let filtered =
+        smartResult.results;
+
+      if (
+        category !==
+        "All"
+      ) {
+        filtered =
+          filtered.filter(
+            (product) =>
+              product.category ===
+              category
+          );
+      }
+
+      const recommended =
+        filtered.length > 0
+          ? filtered[0]
+          : null;
+
+      return {
+        results:
+          filtered,
+
+        recommendedProduct:
+          recommended,
+
+        reason:
+          recommended
+            ? smartResult.reason
+            : "",
+      };
+    }, [
+      products,
+      query,
+      category,
+    ]);
+
+  const filteredProducts =
+    searchData.results;
+
+  const recommendedProduct =
+    searchData.recommendedProduct;
+
+  const recommendationReason =
+    searchData.reason;
+
+  /* =========================
+     VOICE SEARCH
+  ========================= */
+
+  const handleVoiceSearch =
+    () => {
+      const Recognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+      if (!Recognition) {
+        alert(
+          "Voice Search is not supported in this browser. Please use Chrome or Edge."
+        );
+
+        return;
+      }
+
+      const recognition =
+        new Recognition();
+
+      recognition.lang =
+        "en-IN";
+
+      recognition.interimResults =
+        false;
+
+      recognition.continuous =
+        false;
+
+      recognition.onresult =
+        (event) => {
+          const speech =
+            event.results[0][0]
+              .transcript;
+
+          setQuery(
+            speech
+          );
+        };
+
+      recognition.onerror =
+        () => {
+          alert(
+            "Unable to capture voice. Please try again."
+          );
+        };
+
+      recognition.start();
+    };
+
+  /* =========================
+     VOICE RESULTS
+  ========================= */
+
+  const handleVoiceResults =
+    () => {
+      if (
+        !(
+          "speechSynthesis" in
+          window
+        )
+      ) {
+        alert(
+          "Voice Results are not supported in this browser."
+        );
+
+        return;
+      }
+
+      window.speechSynthesis.cancel();
+
+      if (
+        !recommendedProduct
+      ) {
+        const speech =
+          new SpeechSynthesisUtterance(
+            "No matching products found."
+          );
+
+        window.speechSynthesis.speak(
+          speech
+        );
+
+        return;
+      }
+
+      const message =
+        recommendationReason ||
+        `${recommendedProduct.name} is the recommended product.`;
+
+      const speech =
+        new SpeechSynthesisUtterance(
+          message
+        );
+
+      speech.lang =
+        "en-IN";
 
       window.speechSynthesis.speak(
         speech
       );
-
-      return;
-    }
-
-    const topProducts =
-      displayedProducts.slice(
-        0,
-        3
-      );
-
-    let speechText = "";
-
-    if (lastSearch) {
-      speechText +=
-        `For your search ${lastSearch}, `;
-    }
-
-    speechText +=
-      `I found ${displayedProducts.length} suitable products. `;
-
-    topProducts.forEach(
-      (product, index) => {
-        speechText +=
-          `${index + 1}. ${product.name}, priced at rupees ${Number(
-            product.price
-          ).toLocaleString(
-            "en-IN"
-          )}, with a rating of ${product.rating}. `;
-      }
-    );
-
-    if (
-      displayedProducts.length >
-      3
-    ) {
-      speechText +=
-        "You can view the remaining products on the screen.";
-    }
-
-    const speech =
-      new SpeechSynthesisUtterance(
-        speechText
-      );
-
-    speech.lang = "en-IN";
-    speech.rate = 0.95;
-    speech.pitch = 1;
-    speech.volume = 1;
-
-    window.speechSynthesis.speak(
-      speech
-    );
-  };
-
-  const stopSpeaking = () => {
-    window.speechSynthesis.cancel();
-  };
-
-  // =========================
-  // LOADING
-  // =========================
-
-  if (loading) {
-    return (
-      <section className="page-container">
-        <div className="container">
-          <h2>
-            Loading products...
-          </h2>
-        </div>
-      </section>
-    );
-  }
+    };
 
   return (
-    <section className="page-container">
+    <section className="page-section products-page">
+
       <div className="container">
 
+        {/* HEADING */}
+
         <div className="page-heading">
+
           <h1>
             ShopSmart Products
           </h1>
 
           <p>
             Find the best products
-            based on your needs and
-            budget.
+            based on your needs,
+            budget and preferences.
           </p>
+
         </div>
 
-        <SearchBar
-          onSearch={
-            handleSmartSearch
-          }
-        />
+        {/* SEARCH */}
 
-        {message && (
-          <div className="ai-result-row">
+        <div className="search-panel">
 
-            <div className="ai-message">
-              🤖 {message}
-            </div>
+          <input
+            type="text"
+            className="search-input"
+            value={
+              query
+            }
+            onChange={(
+              event
+            ) =>
+              setQuery(
+                event.target.value
+              )
+            }
+            placeholder='Try: "budget laptop under 40000 with best battery"'
+          />
 
-            <div className="voice-result-buttons">
+          <button
+            type="button"
+            className="btn btn-outline"
+            onClick={
+              handleVoiceSearch
+            }
+          >
+            🎤 Voice Search
+          </button>
 
-              <button
-                className="speak-button"
-                onClick={
-                  speakResults
-                }
-              >
-                🔊 Speak Results
-              </button>
+          <button
+            type="button"
+            className="btn btn-outline"
+            onClick={
+              handleVoiceResults
+            }
+          >
+            🔊 Voice Results
+          </button>
 
-              <button
-                className="stop-voice-button"
-                onClick={
-                  stopSpeaking
-                }
-              >
-                ⏹ Stop Voice
-              </button>
+        </div>
 
-            </div>
-          </div>
-        )}
+        {/* FILTER */}
 
-        <div className="category-buttons">
+        <div className="filter-bar">
 
           {categories.map(
             (item) => (
               <button
-                key={item}
-                className={
-                  category === item
-                    ? "category-btn active"
-                    : "category-btn"
+                type="button"
+                key={
+                  item
                 }
+                className={`filter-btn ${
+                  category ===
+                  item
+                    ? "active"
+                    : ""
+                }`}
                 onClick={() =>
-                  handleCategoryClick(
+                  setCategory(
                     item
                   )
                 }
               >
-                {item}
+                {
+                  item
+                }
               </button>
             )
           )}
 
         </div>
 
-        <div className="product-grid">
+        {/* AI RECOMMENDATION */}
 
-          {displayedProducts.length >
-          0 ? (
+        {query.trim() &&
+          recommendedProduct && (
+          <div className="ai-search-recommendation">
 
-            displayedProducts.map(
-              (product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  addToCart={
-                    addToCart
-                  }
-                />
-              )
-            )
+            <div className="ai-recommendation-icon">
+              🤖
+            </div>
 
-          ) : (
+            <div className="ai-recommendation-content">
 
-            <div className="empty-state">
+              <span className="ai-label">
+                ShopSmart AI Recommended
+              </span>
+
               <h2>
-                No products found
+                {
+                  recommendedProduct.name
+                }
               </h2>
 
               <p>
-                Try another smart
-                search.
+                {
+                  recommendationReason
+                }
               </p>
+
+              <div className="ai-recommendation-stats">
+
+                <span>
+                  💰 ₹
+                  {Number(
+                    recommendedProduct.price
+                  ).toLocaleString(
+                    "en-IN"
+                  )}
+                </span>
+
+                <span>
+                  ⭐{" "}
+                  {
+                    recommendedProduct.rating
+                  }
+                </span>
+
+                <span>
+                  🔋{" "}
+                  {
+                    recommendedProduct.batteryScore ||
+                    "N/A"
+                  }
+                  /10
+                </span>
+
+              </div>
+
             </div>
 
-          )}
+          </div>
+        )}
 
-        </div>
+        {/* COMPARE TOOLBAR */}
+
+        {compareItems.length >
+          0 && (
+          <div className="compare-toolbar">
+
+            <div className="compare-toolbar-info">
+
+              <strong>
+                ⚖ Compare Products
+              </strong>
+
+              <span className="compare-count-text">
+                {
+                  compareItems.length
+                }
+                /2 selected
+              </span>
+
+            </div>
+
+            <div className="compare-selected-products">
+
+              {compareItems.map(
+                (product) => (
+                  <span
+                    key={
+                      product.id
+                    }
+                    className="compare-selected-name"
+                  >
+                    {
+                      product.name
+                    }
+                  </span>
+                )
+              )}
+
+            </div>
+
+            <div className="compare-toolbar-actions">
+
+              {compareItems.length ===
+                2 && (
+                <Link
+                  to="/compare"
+                  className="btn btn-primary"
+                >
+                  Compare Now
+                </Link>
+              )}
+
+              <button
+                type="button"
+                className="btn btn-outline"
+                onClick={
+                  clearCompare
+                }
+              >
+                Clear
+              </button>
+
+            </div>
+
+          </div>
+        )}
+
+        {/* LOADING */}
+
+        {loading ? (
+          <div className="loading">
+
+            Loading products...
+
+          </div>
+        ) : filteredProducts.length ===
+          0 ? (
+          <div className="empty-state">
+
+            <h2>
+              No Products Found
+            </h2>
+
+            <p>
+              Try another search
+              phrase or category.
+            </p>
+
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => {
+                setQuery("");
+                setCategory(
+                  "All"
+                );
+              }}
+            >
+              Show All Products
+            </button>
+
+          </div>
+        ) : (
+          <>
+
+            <div className="product-result-count">
+
+              {
+                filteredProducts.length
+              }{" "}
+              product
+              {filteredProducts.length !==
+              1
+                ? "s"
+                : ""}{" "}
+              found
+
+            </div>
+
+            <div className="products-grid">
+
+              {filteredProducts.map(
+                (product) => (
+                  <ProductCard
+                    key={
+                      product.id
+                    }
+                    product={
+                      product
+                    }
+                    addToCart={
+                      addToCart
+                    }
+                    isLoggedIn={
+                      isLoggedIn
+                    }
+                    compareItems={
+                      compareItems
+                    }
+                    toggleCompare={
+                      toggleCompare
+                    }
+                    isRecommended={
+                      recommendedProduct?.id ===
+                      product.id
+                    }
+                  />
+                )
+              )}
+
+            </div>
+
+          </>
+        )}
 
       </div>
+
     </section>
   );
 }

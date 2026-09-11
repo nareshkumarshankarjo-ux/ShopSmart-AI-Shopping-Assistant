@@ -1,139 +1,240 @@
 import React, { useState } from "react";
+
 import {
   Link,
   useNavigate,
 } from "react-router-dom";
 
-function Login({
-  setIsLoggedIn,
-  setCurrentUser,
-}) {
-  const navigate = useNavigate();
+function Login({ loginUser }) {
+  const navigate =
+    useNavigate();
 
-  const [formData, setFormData] =
+  const [form, setForm] =
     useState({
       email: "",
       password: "",
     });
 
-  const [message, setMessage] =
-    useState("");
+  const handleChange = (
+    event
+  ) => {
+    const {
+      name,
+      value,
+    } = event.target;
 
-  const handleChange = (event) => {
-    const { name, value } =
-      event.target;
-
-    setFormData({
-      ...formData,
+    setForm((current) => ({
+      ...current,
       [name]: value,
-    });
+    }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = (
+    event
+  ) => {
     event.preventDefault();
 
-    const registeredUsers =
-      JSON.parse(
-        localStorage.getItem(
-          "shopsmartUsers"
-        )
-      ) || [];
+    const email =
+      form.email
+        .trim()
+        .toLowerCase();
+
+    const password =
+      form.password.trim();
+
+    /* =========================
+       ADMIN LOGIN
+    ========================= */
+
+    if (
+      email ===
+        "admin@shopsmart.com" &&
+      password ===
+        "admin123"
+    ) {
+      const adminUser = {
+        name: "Admin",
+        email:
+          "admin@shopsmart.com",
+        role: "admin",
+      };
+
+      loginUser(
+        adminUser
+      );
+
+      navigate(
+        "/admin",
+        {
+          replace: true,
+        }
+      );
+
+      return;
+    }
+
+    /* =========================
+       NORMAL USER LOGIN
+    ========================= */
+
+    let registeredUsers =
+      [];
+
+    try {
+      registeredUsers =
+        JSON.parse(
+          localStorage.getItem(
+            "shopsmartUsers"
+          )
+        ) || [];
+    } catch {
+      registeredUsers =
+        [];
+    }
 
     const matchedUser =
       registeredUsers.find(
         (user) =>
-          user.email.toLowerCase() ===
-            formData.email
-              .trim()
-              .toLowerCase() &&
+          user.email
+            ?.trim()
+            .toLowerCase() ===
+            email &&
           user.password ===
-            formData.password
+            password
       );
 
     if (!matchedUser) {
-      setMessage(
-        "Invalid email or password. If you are a new user, please register first."
+      alert(
+        "Invalid email or password. Please register first."
       );
+
       return;
     }
 
-    const loggedInUser = {
-      id: matchedUser.id,
-      name: matchedUser.name,
-      email: matchedUser.email,
+    const normalUser = {
+      name:
+        matchedUser.name,
+      email:
+        matchedUser.email,
+      role: "user",
     };
 
-    localStorage.setItem(
-      "shopsmartUser",
-      JSON.stringify(loggedInUser)
+    loginUser(
+      normalUser
     );
 
-    setCurrentUser(loggedInUser);
-    setIsLoggedIn(true);
-
-    navigate("/");
+    navigate(
+      "/",
+      {
+        replace: true,
+      }
+    );
   };
 
   return (
-    <section className="login-page">
-      <div className="login-card">
-        <div className="login-logo">
-          Shop<span>Smart</span>
+    <section className="auth-page">
+      <div className="auth-card">
+
+        <div className="auth-header">
+          <h1>
+            Login
+          </h1>
+
+          <p>
+            Login to your
+            ShopSmart account
+          </p>
         </div>
 
-        <h1>Welcome Back</h1>
+        <form
+          className="auth-form"
+          onSubmit={
+            handleSubmit
+          }
+        >
 
-        <p className="login-subtitle">
-          Login using your registered email and password.
-        </p>
-
-        {message && (
-          <div className="auth-message error">
-            {message}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit}>
-          <div className="login-field">
-            <label>Email Address</label>
+          <div className="form-group">
+            <label
+              htmlFor="email"
+            >
+              Email
+            </label>
 
             <input
-              type="email"
+              id="email"
               name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="Enter registered email"
+              type="email"
+              placeholder="Enter your email"
+              value={
+                form.email
+              }
+              onChange={
+                handleChange
+              }
               required
             />
           </div>
 
-          <div className="login-field">
-            <label>Password</label>
+          <div className="form-group">
+            <label
+              htmlFor="password"
+            >
+              Password
+            </label>
 
             <input
-              type="password"
+              id="password"
               name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Enter password"
+              type="password"
+              placeholder="Enter your password"
+              value={
+                form.password
+              }
+              onChange={
+                handleChange
+              }
               required
             />
           </div>
 
           <button
             type="submit"
-            className="login-button"
+            className="auth-submit-btn"
           >
             Login
           </button>
+
         </form>
 
-        <div className="auth-bottom-text">
-          New user?
+        <p className="auth-switch">
+          Don't have an
+          account?{" "}
+
           <Link to="/register">
-            Register here
+            Register
           </Link>
+        </p>
+
+        <div className="admin-demo">
+          <h3>
+            Admin Demo
+          </h3>
+
+          <p>
+            <strong>
+              Email:
+            </strong>{" "}
+            admin@shopsmart.com
+          </p>
+
+          <p>
+            <strong>
+              Password:
+            </strong>{" "}
+            admin123
+          </p>
         </div>
+
       </div>
     </section>
   );

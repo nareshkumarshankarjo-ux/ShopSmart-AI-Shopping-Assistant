@@ -1,7 +1,6 @@
 import React from "react";
 
 import {
-  Link,
   NavLink,
   useNavigate,
 } from "react-router-dom";
@@ -15,77 +14,123 @@ function Navbar({
   const navigate =
     useNavigate();
 
+  const isAdmin =
+    currentUser?.role ===
+    "admin";
+
   const handleLogout = () => {
     logout();
+
     navigate("/");
   };
 
   return (
     <header className="navbar">
-      <div className="container nav-container">
-        <Link
+      <div className="container navbar-inner">
+
+        {/* LOGO */}
+
+        <NavLink
           to="/"
-          className="logo"
+          className="brand"
         >
-          Shop<span>Smart</span>
-        </Link>
+          Shop
+          <span>
+            Smart
+          </span>
+        </NavLink>
+
+        {/* NAVIGATION */}
 
         <nav className="nav-links">
-          <NavLink to="/">
+
+          <NavLink
+            to="/"
+          >
             Home
           </NavLink>
 
-          <NavLink to="/products">
+          <NavLink
+            to="/products"
+          >
             Products
           </NavLink>
 
-          <NavLink to="/admin">
-            Admin
-          </NavLink>
+          {/* ADMIN ONLY */}
 
-          <NavLink
-            to="/cart"
-            className="cart-link"
-          >
-            🛒 Cart
+          {isLoggedIn &&
+            isAdmin && (
+              <NavLink
+                to="/admin"
+              >
+                Admin
+              </NavLink>
+            )}
 
-            <span className="cart-count">
-              {cartCount}
-            </span>
-          </NavLink>
+          {/* CART:
+              LOGIN REQUIRED
+          */}
+
+          {isLoggedIn && (
+            <NavLink
+              to="/cart"
+              className="cart-pill"
+            >
+              🛒 Cart
+
+              {cartCount >
+                0 && (
+                <span className="cart-count">
+                  {
+                    cartCount
+                  }
+                </span>
+              )}
+            </NavLink>
+          )}
+
+          {/* LOGGED OUT */}
 
           {!isLoggedIn ? (
             <>
               <NavLink
                 to="/login"
-                className="login-nav"
+                className="btn btn-primary"
               >
                 Login
               </NavLink>
 
               <NavLink
                 to="/register"
-                className="register-nav"
+                className="btn btn-outline"
               >
                 Register
               </NavLink>
             </>
           ) : (
+            /* LOGGED IN */
+
             <>
-              {currentUser && (
-                <span className="user-name">
-                  👤 {currentUser.name}
-                </span>
-              )}
+              <span className="user-name">
+                Hi,{" "}
+                {currentUser?.name ||
+                  (isAdmin
+                    ? "Admin"
+                    : "User")}
+              </span>
 
               <button
-                className="logout-button"
-                onClick={handleLogout}
+                type="button"
+                className="btn btn-primary"
+                onClick={
+                  handleLogout
+                }
               >
                 Logout
               </button>
             </>
           )}
+
         </nav>
       </div>
     </header>

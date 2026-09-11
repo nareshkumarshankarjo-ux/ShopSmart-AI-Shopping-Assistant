@@ -1,183 +1,232 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, {
+  useState,
+} from "react";
+
+import {
+  Link,
+  useNavigate,
+} from "react-router-dom";
 
 function Register() {
-  const navigate = useNavigate();
+  const navigate =
+    useNavigate();
 
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
+  const [name, setName] =
+    useState("");
 
-  const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState("");
+  const [email, setEmail] =
+    useState("");
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
+  const [
+    password,
+    setPassword,
+  ] = useState("");
 
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
+  const [
+    confirmPassword,
+    setConfirmPassword,
+  ] = useState("");
 
-  const handleSubmit = (event) => {
+  const [error, setError] =
+    useState("");
+
+  const handleSubmit = (
+    event
+  ) => {
     event.preventDefault();
 
-    const {
-      name,
-      email,
-      password,
-      confirmPassword,
-    } = formData;
+    setError("");
 
     if (
-      !name.trim() ||
-      !email.trim() ||
-      !password ||
-      !confirmPassword
+      password !==
+      confirmPassword
     ) {
-      setMessage("Please fill all fields.");
-      setMessageType("error");
-      return;
-    }
-
-    if (password.length < 6) {
-      setMessage(
-        "Password must contain at least 6 characters."
+      setError(
+        "Passwords do not match."
       );
-      setMessageType("error");
+
       return;
     }
 
-    if (password !== confirmPassword) {
-      setMessage(
-        "Password and Confirm Password do not match."
-      );
-      setMessageType("error");
-      return;
-    }
-
-    const existingUsers =
+    const storedUsers =
       JSON.parse(
-        localStorage.getItem("shopsmartUsers")
-      ) || [];
+        localStorage.getItem(
+          "shopsmartUsers"
+        ) || "[]"
+      );
 
-    const userAlreadyExists =
-      existingUsers.find(
+    const cleanEmail =
+      email
+        .trim()
+        .toLowerCase();
+
+    const alreadyExists =
+      storedUsers.some(
         (user) =>
-          user.email.toLowerCase() ===
-          email.trim().toLowerCase()
+          user.email
+            ?.toLowerCase() ===
+          cleanEmail
       );
 
-    if (userAlreadyExists) {
-      setMessage(
-        "This email is already registered. Please login."
+    if (alreadyExists) {
+      setError(
+        "This email is already registered."
       );
-      setMessageType("error");
+
       return;
     }
 
     const newUser = {
-      id: Date.now(),
-      name: name.trim(),
-      email: email.trim().toLowerCase(),
+      id:
+        Date.now(),
+
+      name:
+        name.trim(),
+
+      email:
+        cleanEmail,
+
       password,
+
+      role:
+        "user",
     };
+
+    const updatedUsers = [
+      ...storedUsers,
+      newUser,
+    ];
 
     localStorage.setItem(
       "shopsmartUsers",
-      JSON.stringify([
-        ...existingUsers,
-        newUser,
-      ])
+      JSON.stringify(
+        updatedUsers
+      )
     );
 
-    setMessage(
-      "Registration successful. Redirecting to login..."
+    alert(
+      "Registration successful. Please login."
     );
-    setMessageType("success");
 
-    setTimeout(() => {
-      navigate("/login");
-    }, 1200);
+    navigate(
+      "/login"
+    );
   };
 
   return (
-    <section className="login-page">
-      <div className="login-card">
-        <div className="login-logo">
-          Shop<span>Smart</span>
-        </div>
+    <section className="auth-page">
+      <div className="auth-card">
+        <h1>
+          Create Account
+        </h1>
 
-        <h1>Create Account</h1>
-
-        <p className="login-subtitle">
-          Register as a new ShopSmart user.
+        <p>
+          Register with
+          ShopSmart
         </p>
 
-        {message && (
-          <div
-            className={
-              messageType === "success"
-                ? "auth-message success"
-                : "auth-message error"
-            }
-          >
-            {message}
+        {error && (
+          <div className="error-message">
+            {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit}>
-          <div className="login-field">
-            <label>Full Name</label>
+        <form
+          onSubmit={
+            handleSubmit
+          }
+        >
+          <div className="form-group">
+            <label>
+              Full Name
+            </label>
 
             <input
               type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="Enter your full name"
+              value={
+                name
+              }
+              onChange={(
+                event
+              ) =>
+                setName(
+                  event
+                    .target
+                    .value
+                )
+              }
+              placeholder="Enter your name"
               required
             />
           </div>
 
-          <div className="login-field">
-            <label>Email Address</label>
+          <div className="form-group">
+            <label>
+              Email
+            </label>
 
             <input
               type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
+              value={
+                email
+              }
+              onChange={(
+                event
+              ) =>
+                setEmail(
+                  event
+                    .target
+                    .value
+                )
+              }
               placeholder="Enter your email"
               required
             />
           </div>
 
-          <div className="login-field">
-            <label>Password</label>
+          <div className="form-group">
+            <label>
+              Password
+            </label>
 
             <input
               type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
+              value={
+                password
+              }
+              onChange={(
+                event
+              ) =>
+                setPassword(
+                  event
+                    .target
+                    .value
+                )
+              }
               placeholder="Create password"
               required
             />
           </div>
 
-          <div className="login-field">
-            <label>Confirm Password</label>
+          <div className="form-group">
+            <label>
+              Confirm Password
+            </label>
 
             <input
               type="password"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
+              value={
+                confirmPassword
+              }
+              onChange={(
+                event
+              ) =>
+                setConfirmPassword(
+                  event
+                    .target
+                    .value
+                )
+              }
               placeholder="Confirm password"
               required
             />
@@ -185,18 +234,22 @@ function Register() {
 
           <button
             type="submit"
-            className="login-button"
+            className="primary-btn"
           >
             Register
           </button>
         </form>
 
-        <div className="auth-bottom-text">
-          Already registered?
-          <Link to="/login">
-            Login here
+        <p className="auth-bottom-text">
+          Already have an
+          account?{" "}
+
+          <Link
+            to="/login"
+          >
+            Login
           </Link>
-        </div>
+        </p>
       </div>
     </section>
   );

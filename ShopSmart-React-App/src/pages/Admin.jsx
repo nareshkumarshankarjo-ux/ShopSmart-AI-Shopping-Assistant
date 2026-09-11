@@ -1,5 +1,4 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 
 const initialForm = {
   name: "",
@@ -9,9 +8,8 @@ const initialForm = {
   originalPrice: "",
   rating: "4.0",
   description: "",
-  image:
-    "https://placehold.co/500x350?text=ShopSmart+Product",
-  batteryScore: 5,
+  image: "products/smartbook-air-14.jpg",
+  batteryScore: "5",
   bestSeller: false,
 };
 
@@ -26,6 +24,13 @@ function Admin({
   const [message, setMessage] =
     useState("");
 
+  const [messageType, setMessageType] =
+    useState("");
+
+  /* ==============================
+     HANDLE INPUT CHANGES
+  ============================== */
+
   const handleChange = (event) => {
     const {
       name,
@@ -34,51 +39,76 @@ function Admin({
       checked,
     } = event.target;
 
-    setFormData({
-      ...formData,
+    setFormData((current) => ({
+      ...current,
 
       [name]:
         type === "checkbox"
           ? checked
           : value,
-    });
+    }));
   };
+
+  /* ==============================
+     ADD PRODUCT
+  ============================== */
 
   const handleSubmit = async (
     event
   ) => {
     event.preventDefault();
 
+    setMessage("");
+    setMessageType("");
+
     if (
-      !formData.name ||
+      !formData.name.trim() ||
       !formData.price
     ) {
       setMessage(
-        "Product name and price are required."
+        "Product name and selling price are required."
       );
+
+      setMessageType("error");
 
       return;
     }
 
     const product = {
-      ...formData,
+      name:
+        formData.name.trim(),
 
-      price: Number(
-        formData.price
-      ),
+      brand:
+        formData.brand.trim(),
 
-      originalPrice: Number(
-        formData.originalPrice ||
-          formData.price
-      ),
+      category:
+        formData.category,
 
-      rating: Number(
-        formData.rating
-      ),
+      price:
+        Number(formData.price),
 
-      batteryScore: Number(
-        formData.batteryScore
-      ),
+      originalPrice:
+        Number(
+          formData.originalPrice ||
+            formData.price
+        ),
+
+      rating:
+        Number(formData.rating),
+
+      description:
+        formData.description.trim(),
+
+      image:
+        formData.image.trim(),
+
+      batteryScore:
+        Number(
+          formData.batteryScore
+        ),
+
+      bestSeller:
+        formData.bestSeller,
     };
 
     const success =
@@ -89,14 +119,86 @@ function Admin({
         "Product added successfully."
       );
 
-      setFormData(initialForm);
+      setMessageType(
+        "success"
+      );
+
+      setFormData(
+        initialForm
+      );
+    } else {
+      setMessage(
+        "Unable to add product. Please check JSON Server."
+      );
+
+      setMessageType(
+        "error"
+      );
     }
   };
 
+  /* ==============================
+     DELETE PRODUCT
+  ============================== */
+
+  const handleDelete = async (
+    product
+  ) => {
+    const confirmed =
+      window.confirm(
+        `Are you sure you want to delete "${product.name}"?`
+      );
+
+    if (!confirmed) {
+      return;
+    }
+
+    await deleteProduct(
+      product.id
+    );
+  };
+
+  /* ==============================
+     IMAGE URL
+  ============================== */
+
+  const getImageUrl = (
+    image
+  ) => {
+    if (!image) {
+      return "";
+    }
+
+    if (
+      image.startsWith(
+        "http://"
+      ) ||
+      image.startsWith(
+        "https://"
+      )
+    ) {
+      return image;
+    }
+
+    return `${
+      import.meta.env.BASE_URL
+    }${image.replace(
+      /^\/+/,
+      ""
+    )}`;
+  };
+
   return (
-    <section className="page-container">
+    <section className="admin-page">
+
       <div className="container">
+
+        {/* ========================
+            PAGE HEADING
+        ========================= */}
+
         <div className="page-heading">
+
           <h1>
             Product Management
           </h1>
@@ -105,215 +207,474 @@ function Admin({
             Add and remove products
             using JSON Server CRUD.
           </p>
+
         </div>
 
-        <div className="admin-layout">
-          <form
-            className="admin-form"
-            onSubmit={handleSubmit}
-          >
+        {/* ========================
+            ADD PRODUCT
+        ========================= */}
+
+        <div className="admin-card">
+
+          <div className="admin-card-heading">
+
             <h2>
               Add Product
             </h2>
 
-            {message && (
-              <p className="form-message">
-                {message}
-              </p>
-            )}
+            <p>
+              Enter the product
+              details below.
+            </p>
 
-            <label>
-              Product Name
-            </label>
+          </div>
 
-            <input
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="Example: SmartBook Pro"
-            />
-
-            <label>Brand</label>
-
-            <input
-              name="brand"
-              value={formData.brand}
-              onChange={handleChange}
-              placeholder="Brand"
-            />
-
-            <label>Category</label>
-
-            <select
-              name="category"
-              value={
-                formData.category
-              }
-              onChange={handleChange}
+          {message && (
+            <div
+              className={`form-message ${messageType}`}
             >
-              <option>
-                Laptop
-              </option>
+              {message}
+            </div>
+          )}
 
-              <option>
-                Mobile
-              </option>
+          <form
+            className="admin-form-grid"
+            onSubmit={
+              handleSubmit
+            }
+          >
 
-              <option>
-                Headphone
-              </option>
+            {/* PRODUCT NAME */}
 
-              <option>
-                Watch
-              </option>
+            <div className="form-group">
 
-              <option>
-                Tablet
-              </option>
+              <label
+                htmlFor="name"
+              >
+                Product Name
+              </label>
 
-              <option>
-                Camera
-              </option>
-            </select>
-
-            <label>
-              Selling Price
-            </label>
-
-            <input
-              type="number"
-              name="price"
-              value={formData.price}
-              onChange={handleChange}
-            />
-
-            <label>
-              Original Price
-            </label>
-
-            <input
-              type="number"
-              name="originalPrice"
-              value={
-                formData.originalPrice
-              }
-              onChange={handleChange}
-            />
-
-            <label>Rating</label>
-
-            <input
-              type="number"
-              step="0.1"
-              max="5"
-              name="rating"
-              value={
-                formData.rating
-              }
-              onChange={handleChange}
-            />
-
-            <label>
-              Description
-            </label>
-
-            <textarea
-              name="description"
-              value={
-                formData.description
-              }
-              onChange={handleChange}
-              rows="4"
-            />
-
-            <label>
-              Image URL
-            </label>
-
-            <input
-              name="image"
-              value={formData.image}
-              onChange={handleChange}
-            />
-
-            <label>
-              Battery Score
-            </label>
-
-            <input
-              type="number"
-              min="1"
-              max="10"
-              name="batteryScore"
-              value={
-                formData.batteryScore
-              }
-              onChange={handleChange}
-            />
-
-            <label className="checkbox-label">
               <input
-                type="checkbox"
-                name="bestSeller"
-                checked={
-                  formData.bestSeller
+                id="name"
+                type="text"
+                name="name"
+                value={
+                  formData.name
                 }
-                onChange={handleChange}
+                onChange={
+                  handleChange
+                }
+                placeholder="Example: SmartBook Pro"
+                required
               />
 
-              Best Seller
-            </label>
+            </div>
 
-            <button
-              className="primary-btn full-width"
-              type="submit"
-            >
-              Add Product
-            </button>
+            {/* BRAND */}
+
+            <div className="form-group">
+
+              <label
+                htmlFor="brand"
+              >
+                Brand
+              </label>
+
+              <input
+                id="brand"
+                type="text"
+                name="brand"
+                value={
+                  formData.brand
+                }
+                onChange={
+                  handleChange
+                }
+                placeholder="Example: ShopSmart"
+              />
+
+            </div>
+
+            {/* CATEGORY */}
+
+            <div className="form-group">
+
+              <label
+                htmlFor="category"
+              >
+                Category
+              </label>
+
+              <select
+                id="category"
+                name="category"
+                value={
+                  formData.category
+                }
+                onChange={
+                  handleChange
+                }
+              >
+
+                <option value="Laptop">
+                  Laptop
+                </option>
+
+                <option value="Mobile">
+                  Mobile
+                </option>
+
+                <option value="Headphone">
+                  Headphone
+                </option>
+
+                <option value="Watch">
+                  Watch
+                </option>
+
+                <option value="Tablet">
+                  Tablet
+                </option>
+
+                <option value="Camera">
+                  Camera
+                </option>
+
+              </select>
+
+            </div>
+
+            {/* SELLING PRICE */}
+
+            <div className="form-group">
+
+              <label
+                htmlFor="price"
+              >
+                Selling Price
+              </label>
+
+              <input
+                id="price"
+                type="number"
+                name="price"
+                value={
+                  formData.price
+                }
+                onChange={
+                  handleChange
+                }
+                placeholder="38999"
+                min="0"
+                required
+              />
+
+            </div>
+
+            {/* ORIGINAL PRICE */}
+
+            <div className="form-group">
+
+              <label
+                htmlFor="originalPrice"
+              >
+                Original Price
+              </label>
+
+              <input
+                id="originalPrice"
+                type="number"
+                name="originalPrice"
+                value={
+                  formData.originalPrice
+                }
+                onChange={
+                  handleChange
+                }
+                placeholder="42999"
+                min="0"
+              />
+
+            </div>
+
+            {/* RATING */}
+
+            <div className="form-group">
+
+              <label
+                htmlFor="rating"
+              >
+                Rating
+              </label>
+
+              <input
+                id="rating"
+                type="number"
+                step="0.1"
+                min="0"
+                max="5"
+                name="rating"
+                value={
+                  formData.rating
+                }
+                onChange={
+                  handleChange
+                }
+              />
+
+            </div>
+
+            {/* DESCRIPTION */}
+
+            <div className="form-group admin-description">
+
+              <label
+                htmlFor="description"
+              >
+                Description
+              </label>
+
+              <textarea
+                id="description"
+                name="description"
+                value={
+                  formData.description
+                }
+                onChange={
+                  handleChange
+                }
+                rows="5"
+                placeholder="Enter product description"
+              />
+
+            </div>
+
+            {/* IMAGE */}
+
+            <div className="form-group">
+
+              <label
+                htmlFor="image"
+              >
+                Image URL / Path
+              </label>
+
+              <input
+                id="image"
+                type="text"
+                name="image"
+                value={
+                  formData.image
+                }
+                onChange={
+                  handleChange
+                }
+                placeholder="products/example.jpg"
+              />
+
+            </div>
+
+            {/* BATTERY SCORE */}
+
+            <div className="form-group">
+
+              <label
+                htmlFor="batteryScore"
+              >
+                Battery Score
+              </label>
+
+              <input
+                id="batteryScore"
+                type="number"
+                min="1"
+                max="10"
+                name="batteryScore"
+                value={
+                  formData.batteryScore
+                }
+                onChange={
+                  handleChange
+                }
+              />
+
+            </div>
+
+            {/* BEST SELLER */}
+
+            <div className="admin-checkbox-row">
+
+              <label>
+
+                <input
+                  type="checkbox"
+                  name="bestSeller"
+                  checked={
+                    formData.bestSeller
+                  }
+                  onChange={
+                    handleChange
+                  }
+                />
+
+                <span>
+                  Best Seller
+                </span>
+
+              </label>
+
+            </div>
+
+            {/* ADD BUTTON */}
+
+            <div className="admin-submit-row">
+
+              <button
+                className="btn btn-primary"
+                type="submit"
+              >
+                + Add Product
+              </button>
+
+            </div>
+
           </form>
 
-          <div className="admin-products">
-            <h2>
-              Existing Products
-            </h2>
+        </div>
 
-            {products.map(
-              (product) => (
-                <div
-                  className="admin-product"
-                  key={product.id}
-                >
-                  <div>
-                    <strong>
-                      {product.name}
-                    </strong>
+        {/* ========================
+            EXISTING PRODUCTS
+        ========================= */}
 
-                    <p>
-                      ₹
-                      {Number(
-                        product.price
-                      ).toLocaleString(
-                        "en-IN"
-                      )}
-                    </p>
-                  </div>
+        <div className="admin-card admin-products-card">
 
-                  <button
-                    className="delete-btn"
-                    onClick={() =>
-                      deleteProduct(
-                        product.id
-                      )
+          <div className="admin-products-header">
+
+            <div>
+
+              <h2>
+                Existing Products
+              </h2>
+
+              <p>
+                Total products:{" "}
+                <strong>
+                  {products.length}
+                </strong>
+              </p>
+
+            </div>
+
+          </div>
+
+          {products.length ===
+          0 ? (
+            <div className="admin-empty">
+
+              <p>
+                No products found.
+              </p>
+
+            </div>
+          ) : (
+            <div className="admin-product-grid">
+
+              {products.map(
+                (product) => (
+                  <article
+                    className="admin-product-card"
+                    key={
+                      product.id
                     }
                   >
-                    Delete
-                  </button>
-                </div>
-              )
-            )}
-          </div>
+
+                    {/* IMAGE */}
+
+                    <div className="admin-product-image-wrap">
+
+                      <img
+                        src={getImageUrl(
+                          product.image
+                        )}
+                        alt={
+                          product.name
+                        }
+                      />
+
+                    </div>
+
+                    {/* DETAILS */}
+
+                    <div className="admin-product-info">
+
+                      <span className="admin-product-category">
+                        {
+                          product.category
+                        }
+                      </span>
+
+                      <h3>
+                        {
+                          product.name
+                        }
+                      </h3>
+
+                      {product.brand && (
+                        <p className="admin-product-brand">
+                          Brand:{" "}
+                          {
+                            product.brand
+                          }
+                        </p>
+                      )}
+
+                      <div className="admin-product-meta">
+
+                        <strong className="admin-product-price">
+                          ₹
+                          {Number(
+                            product.price
+                          ).toLocaleString(
+                            "en-IN"
+                          )}
+                        </strong>
+
+                        <span className="admin-product-rating">
+                          ⭐{" "}
+                          {
+                            product.rating
+                          }
+                        </span>
+
+                      </div>
+
+                    </div>
+
+                    {/* DELETE */}
+
+                    <button
+                      type="button"
+                      className="admin-delete-btn"
+                      onClick={() =>
+                        handleDelete(
+                          product
+                        )
+                      }
+                    >
+                      Delete
+                    </button>
+
+                  </article>
+                )
+              )}
+
+            </div>
+          )}
+
         </div>
+
       </div>
+
     </section>
   );
 }
