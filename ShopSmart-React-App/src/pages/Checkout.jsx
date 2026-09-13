@@ -1,38 +1,60 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, {
+  useState,
+} from "react";
+
+import {
+  useNavigate,
+} from "react-router-dom";
 
 function Checkout({
   cart = [],
   clearCart,
 }) {
-  const navigate = useNavigate();
+  const navigate =
+    useNavigate();
 
-  const savedUser = JSON.parse(
-    localStorage.getItem("shopsmartUser") ||
-      "{}"
-  );
+  let savedUser = {};
 
-  const [formData, setFormData] =
-    useState({
-      fullName:
-        savedUser.name ||
-        savedUser.fullName ||
-        "",
+  try {
+    savedUser =
+      JSON.parse(
+        localStorage.getItem(
+          "shopsmartUser"
+        ) || "{}"
+      );
+  } catch {
+    savedUser = {};
+  }
 
-      email:
-        savedUser.email || "",
+  const [
+    formData,
+    setFormData,
+  ] = useState({
+    fullName:
+      savedUser.name ||
+      savedUser.fullName ||
+      "",
 
-      mobile: "",
-      address: "",
-      city: "",
-      pincode: "",
+    email:
+      savedUser.email ||
+      "",
 
-      paymentMethod:
-        "Cash on Delivery",
-    });
+    mobile: "",
 
-  const [orderPlaced, setOrderPlaced] =
-    useState(false);
+    address: "",
+
+    city: "",
+
+    pincode: "",
+
+    paymentMethod:
+      "Cash on Delivery",
+  });
+
+  const [
+    orderPlaced,
+    setOrderPlaced,
+  ] = useState(false);
 
   const [
     finalOrderTotal,
@@ -41,24 +63,36 @@ function Checkout({
 
   const totalProducts =
     cart.reduce(
-      (total, item) =>
+      (
+        total,
+        item
+      ) =>
         total +
-        Number(item.quantity || 1),
+        Number(
+          item.quantity || 1
+        ),
       0
     );
 
   const totalAmount =
     cart.reduce(
-      (total, item) =>
+      (
+        total,
+        item
+      ) =>
         total +
-        Number(item.price || 0) *
+        Number(
+          item.price || 0
+        ) *
           Number(
             item.quantity || 1
           ),
       0
     );
 
-  const getImageUrl = (image) => {
+  const getImageUrl = (
+    image
+  ) => {
     if (!image) {
       return "";
     }
@@ -76,10 +110,9 @@ function Checkout({
 
     return `${
       import.meta.env.BASE_URL
-    }${String(image).replace(
-      /^\/+/,
-      ""
-    )}`;
+    }${String(
+      image
+    ).replace(/^\/+/, "")}`;
   };
 
   const handleChange = (
@@ -91,9 +124,11 @@ function Checkout({
     } = event.target;
 
     setFormData(
-      (previousData) => ({
-        ...previousData,
-        [name]: value,
+      (current) => ({
+        ...current,
+
+        [name]:
+          value,
       })
     );
   };
@@ -102,82 +137,89 @@ function Checkout({
      PLACE ORDER
   ===================================== */
 
-  const handleSubmit = (
-    event
-  ) => {
-    event.preventDefault();
+  const handleSubmit =
+    async (
+      event
+    ) => {
+      event.preventDefault();
 
-    if (cart.length === 0) {
-      alert(
-        "Your cart is empty."
+      if (
+        cart.length ===
+        0
+      ) {
+        alert(
+          "Your cart is empty."
+        );
+
+        navigate(
+          "/products"
+        );
+
+        return;
+      }
+
+      if (
+        !formData.fullName.trim() ||
+        !formData.email.trim() ||
+        !formData.mobile.trim() ||
+        !formData.address.trim() ||
+        !formData.city.trim() ||
+        !formData.pincode.trim()
+      ) {
+        alert(
+          "Please fill in all delivery details."
+        );
+
+        return;
+      }
+
+      if (
+        !/^[0-9]{10}$/.test(
+          formData.mobile
+        )
+      ) {
+        alert(
+          "Please enter a valid 10-digit mobile number."
+        );
+
+        return;
+      }
+
+      if (
+        !/^[0-9]{6}$/.test(
+          formData.pincode
+        )
+      ) {
+        alert(
+          "Please enter a valid 6-digit pincode."
+        );
+
+        return;
+      }
+
+      /*
+        Save the amount
+        BEFORE clearing cart.
+      */
+
+      setFinalOrderTotal(
+        totalAmount
       );
 
-      navigate(
-        "/products"
+      setOrderPlaced(
+        true
       );
 
-      return;
-    }
-
-    if (
-      !formData.fullName.trim() ||
-      !formData.email.trim() ||
-      !formData.mobile.trim() ||
-      !formData.address.trim() ||
-      !formData.city.trim() ||
-      !formData.pincode.trim()
-    ) {
-      alert(
-        "Please fill in all delivery details."
-      );
-
-      return;
-    }
-
-    if (
-      !/^[0-9]{10}$/.test(
-        formData.mobile
-      )
-    ) {
-      alert(
-        "Please enter a valid 10-digit mobile number."
-      );
-
-      return;
-    }
-
-    if (
-      !/^[0-9]{6}$/.test(
-        formData.pincode
-      )
-    ) {
-      alert(
-        "Please enter a valid 6-digit pincode."
-      );
-
-      return;
-    }
-
-    /*
-      IMPORTANT:
-      Save total before clearing cart.
-    */
-    setFinalOrderTotal(
-      totalAmount
-    );
-
-    setOrderPlaced(true);
-
-    if (
-      typeof clearCart ===
-      "function"
-    ) {
-      clearCart();
-    }
-  };
+      if (
+        typeof clearCart ===
+        "function"
+      ) {
+        await clearCart();
+      }
+    };
 
   /* =====================================
-     ORDER SUCCESS
+     SUCCESS PAGE
   ===================================== */
 
   if (orderPlaced) {
@@ -190,15 +232,18 @@ function Checkout({
             </div>
 
             <h1>
-              Order Placed Successfully!
+              Order Placed
+              Successfully!
             </h1>
 
             <p>
               Thank you,{" "}
-              {formData.fullName}.
-              Your ShopSmart order
-              has been placed
-              successfully.
+              {
+                formData.fullName
+              }
+              . Your ShopSmart
+              order has been
+              placed successfully.
             </p>
 
             <p className="order-success-total">
@@ -246,8 +291,8 @@ function Checkout({
 
             <p>
               Add some products
-              before proceeding to
-              checkout.
+              before proceeding
+              to checkout.
             </p>
 
             <button
@@ -276,14 +321,15 @@ function Checkout({
           </h1>
 
           <p>
-            Complete your delivery
-            and payment details to
-            place your order.
+            Complete your
+            delivery and payment
+            details to place your
+            order.
           </p>
         </div>
 
         <div className="checkout-layout">
-          {/* LEFT SIDE */}
+          {/* FORM */}
 
           <div className="checkout-form-card">
             <form
@@ -298,20 +344,18 @@ function Checkout({
 
                 <p>
                   Enter the address
-                  where you would like
-                  your order delivered.
+                  where you would
+                  like your order
+                  delivered.
                 </p>
               </div>
 
               <div className="checkout-form-group">
-                <label
-                  htmlFor="fullName"
-                >
+                <label>
                   Full Name
                 </label>
 
                 <input
-                  id="fullName"
                   type="text"
                   name="fullName"
                   value={
@@ -320,20 +364,16 @@ function Checkout({
                   onChange={
                     handleChange
                   }
-                  placeholder="Enter your full name"
                   required
                 />
               </div>
 
               <div className="checkout-form-group">
-                <label
-                  htmlFor="email"
-                >
+                <label>
                   Email Address
                 </label>
 
                 <input
-                  id="email"
                   type="email"
                   name="email"
                   value={
@@ -342,20 +382,16 @@ function Checkout({
                   onChange={
                     handleChange
                   }
-                  placeholder="Enter your email address"
                   required
                 />
               </div>
 
               <div className="checkout-form-group">
-                <label
-                  htmlFor="mobile"
-                >
+                <label>
                   Mobile Number
                 </label>
 
                 <input
-                  id="mobile"
                   type="tel"
                   name="mobile"
                   value={
@@ -364,21 +400,18 @@ function Checkout({
                   onChange={
                     handleChange
                   }
-                  placeholder="Enter 10-digit mobile number"
                   maxLength="10"
+                  placeholder="Enter 10-digit mobile number"
                   required
                 />
               </div>
 
               <div className="checkout-form-group">
-                <label
-                  htmlFor="address"
-                >
+                <label>
                   Delivery Address
                 </label>
 
                 <textarea
-                  id="address"
                   name="address"
                   value={
                     formData.address
@@ -386,22 +419,19 @@ function Checkout({
                   onChange={
                     handleChange
                   }
-                  placeholder="Enter complete delivery address"
                   rows="4"
+                  placeholder="Enter complete delivery address"
                   required
                 />
               </div>
 
               <div className="checkout-form-row">
                 <div className="checkout-form-group">
-                  <label
-                    htmlFor="city"
-                  >
+                  <label>
                     City
                   </label>
 
                   <input
-                    id="city"
                     type="text"
                     name="city"
                     value={
@@ -410,20 +440,17 @@ function Checkout({
                     onChange={
                       handleChange
                     }
-                    placeholder="Enter city"
+                    placeholder="City"
                     required
                   />
                 </div>
 
                 <div className="checkout-form-group">
-                  <label
-                    htmlFor="pincode"
-                  >
+                  <label>
                     Pincode
                   </label>
 
                   <input
-                    id="pincode"
                     type="text"
                     name="pincode"
                     value={
@@ -432,8 +459,8 @@ function Checkout({
                     onChange={
                       handleChange
                     }
-                    placeholder="Enter pincode"
                     maxLength="6"
+                    placeholder="Pincode"
                     required
                   />
                 </div>
@@ -446,125 +473,79 @@ function Checkout({
                   <h2>
                     Payment Method
                   </h2>
-
-                  <p>
-                    Select your
-                    preferred payment
-                    option.
-                  </p>
                 </div>
 
                 <div className="checkout-payment-options">
-                  <label
-                    className={`checkout-payment-option ${
-                      formData.paymentMethod ===
-                      "Cash on Delivery"
-                        ? "active"
-                        : ""
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      value="Cash on Delivery"
-                      checked={
-                        formData.paymentMethod ===
-                        "Cash on Delivery"
-                      }
-                      onChange={
-                        handleChange
-                      }
-                    />
+                  {[
+                    {
+                      value:
+                        "Cash on Delivery",
 
-                    <span className="payment-icon">
-                      💵
-                    </span>
+                      icon:
+                        "💵",
+                    },
 
-                    <span>
-                      <strong>
-                        Cash on Delivery
-                      </strong>
+                    {
+                      value:
+                        "UPI",
 
-                      <small>
-                        Pay when your
-                        order arrives
-                      </small>
-                    </span>
-                  </label>
+                      icon:
+                        "📱",
+                    },
 
-                  <label
-                    className={`checkout-payment-option ${
-                      formData.paymentMethod ===
-                      "UPI"
-                        ? "active"
-                        : ""
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      value="UPI"
-                      checked={
-                        formData.paymentMethod ===
-                        "UPI"
-                      }
-                      onChange={
-                        handleChange
-                      }
-                    />
+                    {
+                      value:
+                        "Credit / Debit Card",
 
-                    <span className="payment-icon">
-                      📱
-                    </span>
+                      icon:
+                        "💳",
+                    },
+                  ].map(
+                    (
+                      option
+                    ) => (
+                      <label
+                        key={
+                          option.value
+                        }
+                        className={`checkout-payment-option ${
+                          formData.paymentMethod ===
+                          option.value
+                            ? "active"
+                            : ""
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value={
+                            option.value
+                          }
+                          checked={
+                            formData.paymentMethod ===
+                            option.value
+                          }
+                          onChange={
+                            handleChange
+                          }
+                        />
 
-                    <span>
-                      <strong>
-                        UPI
-                      </strong>
+                        <span className="payment-icon">
+                          {
+                            option.icon
+                          }
+                        </span>
 
-                      <small>
-                        Pay using your
-                        UPI app
-                      </small>
-                    </span>
-                  </label>
-
-                  <label
-                    className={`checkout-payment-option ${
-                      formData.paymentMethod ===
-                      "Credit / Debit Card"
-                        ? "active"
-                        : ""
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      value="Credit / Debit Card"
-                      checked={
-                        formData.paymentMethod ===
-                        "Credit / Debit Card"
-                      }
-                      onChange={
-                        handleChange
-                      }
-                    />
-
-                    <span className="payment-icon">
-                      💳
-                    </span>
-
-                    <span>
-                      <strong>
-                        Credit / Debit Card
-                      </strong>
-
-                      <small>
-                        Pay securely
-                        using your card
-                      </small>
-                    </span>
-                  </label>
+                        <span>
+                          <strong>
+                            {
+                              option.value
+                            }
+                          </strong>
+                        </span>
+                      </label>
+                    )
+                  )}
                 </div>
               </div>
 
@@ -577,7 +558,7 @@ function Checkout({
             </form>
           </div>
 
-          {/* RIGHT SIDE */}
+          {/* SUMMARY */}
 
           <aside className="checkout-summary-card">
             <h2>
@@ -619,7 +600,9 @@ function Checkout({
 
                         <p>
                           Quantity:{" "}
-                          {quantity}
+                          {
+                            quantity
+                          }
                         </p>
 
                         <strong>
@@ -647,7 +630,9 @@ function Checkout({
                 </span>
 
                 <strong>
-                  {totalProducts}
+                  {
+                    totalProducts
+                  }
                 </strong>
               </div>
 

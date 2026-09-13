@@ -1,99 +1,139 @@
-import React, {
-  useState,
-} from "react";
-
-import {
-  Link,
-  useNavigate,
-} from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 function Register() {
-  const navigate =
-    useNavigate();
+  const navigate = useNavigate();
 
-  const [name, setName] =
-    useState("");
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [mobile, setMobile] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
-  const [email, setEmail] =
-    useState("");
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState("");
 
-  const [
-    password,
-    setPassword,
-  ] = useState("");
-
-  const [
-    confirmPassword,
-    setConfirmPassword,
-  ] = useState("");
-
-  const [error, setError] =
-    useState("");
-
-  const handleSubmit = (
-    event
-  ) => {
+  const handleRegister = (event) => {
     event.preventDefault();
 
-    setError("");
+    setMessage("");
+    setMessageType("");
 
-    if (
-      password !==
-      confirmPassword
-    ) {
-      setError(
-        "Passwords do not match."
+    const cleanName = fullName.trim();
+
+    const cleanEmail = email
+      .trim()
+      .toLowerCase();
+
+    const cleanMobile = mobile.replace(
+      /\D/g,
+      ""
+    );
+
+    if (!cleanName) {
+      setMessage(
+        "Please enter your full name."
       );
-
+      setMessageType("error");
       return;
     }
 
-    const storedUsers =
-      JSON.parse(
+    if (!cleanEmail) {
+      setMessage(
+        "Please enter your email address."
+      );
+      setMessageType("error");
+      return;
+    }
+
+    if (cleanMobile.length !== 10) {
+      setMessage(
+        "Please enter a valid 10-digit mobile number."
+      );
+      setMessageType("error");
+      return;
+    }
+
+    if (password.length < 6) {
+      setMessage(
+        "Password must contain at least 6 characters."
+      );
+      setMessageType("error");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setMessage(
+        "Passwords do not match."
+      );
+      setMessageType("error");
+      return;
+    }
+
+    let existingUsers = [];
+
+    try {
+      existingUsers = JSON.parse(
         localStorage.getItem(
           "shopsmartUsers"
         ) || "[]"
       );
+    } catch {
+      existingUsers = [];
+    }
 
-    const cleanEmail =
-      email
-        .trim()
-        .toLowerCase();
-
-    const alreadyExists =
-      storedUsers.some(
+    const emailExists =
+      existingUsers.some(
         (user) =>
-          user.email
-            ?.toLowerCase() ===
+          String(user.email || "")
+            .trim()
+            .toLowerCase() ===
           cleanEmail
       );
 
-    if (alreadyExists) {
-      setError(
-        "This email is already registered."
+    if (emailExists) {
+      setMessage(
+        "An account already exists with this email."
+      );
+      setMessageType("error");
+      return;
+    }
+
+    const mobileExists =
+      existingUsers.some(
+        (user) =>
+          String(
+            user.mobile || ""
+          ).replace(/\D/g, "") ===
+          cleanMobile
       );
 
+    if (mobileExists) {
+      setMessage(
+        "An account already exists with this mobile number."
+      );
+      setMessageType("error");
       return;
     }
 
     const newUser = {
-      id:
-        Date.now(),
+      id: Date.now(),
 
-      name:
-        name.trim(),
+      name: cleanName,
 
-      email:
-        cleanEmail,
+      fullName: cleanName,
+
+      email: cleanEmail,
+
+      mobile: cleanMobile,
 
       password,
 
-      role:
-        "user",
+      role: "user",
     };
 
     const updatedUsers = [
-      ...storedUsers,
+      ...existingUsers,
       newUser,
     ];
 
@@ -104,116 +144,190 @@ function Register() {
       )
     );
 
-    alert(
-      "Registration successful. Please login."
+    setMessage(
+      "Registration successful. You can now login."
     );
 
-    navigate(
-      "/login"
+    setMessageType(
+      "success"
     );
+
+    setTimeout(() => {
+      navigate("/login");
+    }, 1000);
   };
 
   return (
     <section className="auth-page">
-      <div className="auth-card">
-        <h1>
-          Create Account
-        </h1>
+      <div className="auth-card register-card">
 
-        <p>
-          Register with
-          ShopSmart
-        </p>
+        <div className="auth-header">
+          <div className="login-icon">
+            👤
+          </div>
 
-        {error && (
-          <div className="error-message">
-            {error}
+          <h1>
+            Create Account
+          </h1>
+
+          <p className="auth-subtitle">
+            Register with ShopSmart
+          </p>
+        </div>
+
+        {message && (
+          <div
+            className={
+              messageType ===
+              "success"
+                ? "auth-message success"
+                : "auth-message error"
+            }
+          >
+            {message}
           </div>
         )}
 
         <form
+          className="auth-form"
           onSubmit={
-            handleSubmit
+            handleRegister
           }
         >
+
+          {/* FULL NAME */}
+
           <div className="form-group">
-            <label>
+            <label
+              htmlFor="fullName"
+            >
               Full Name
             </label>
 
             <input
+              id="fullName"
               type="text"
-              value={
-                name
-              }
+              value={fullName}
               onChange={(
                 event
               ) =>
-                setName(
-                  event
-                    .target
+                setFullName(
+                  event.target
                     .value
                 )
               }
-              placeholder="Enter your name"
+              placeholder="Enter your full name"
+              autoComplete="name"
               required
             />
           </div>
 
+          {/* EMAIL */}
+
           <div className="form-group">
-            <label>
+            <label
+              htmlFor="email"
+            >
               Email
             </label>
 
             <input
+              id="email"
               type="email"
-              value={
-                email
-              }
+              value={email}
               onChange={(
                 event
               ) =>
                 setEmail(
-                  event
-                    .target
+                  event.target
                     .value
                 )
               }
               placeholder="Enter your email"
+              autoComplete="email"
               required
             />
           </div>
 
+          {/* MOBILE NUMBER */}
+
           <div className="form-group">
-            <label>
+            <label
+              htmlFor="mobile"
+            >
+              Mobile Number
+            </label>
+
+            <div className="mobile-input-wrapper">
+              <span className="country-code">
+                +91
+              </span>
+
+              <input
+                id="mobile"
+                type="tel"
+                value={mobile}
+                onChange={(
+                  event
+                ) =>
+                  setMobile(
+                    event.target.value
+                      .replace(
+                        /\D/g,
+                        ""
+                      )
+                      .slice(
+                        0,
+                        10
+                      )
+                  )
+                }
+                placeholder="Enter 10-digit mobile number"
+                maxLength="10"
+                autoComplete="tel"
+                required
+              />
+            </div>
+          </div>
+
+          {/* PASSWORD */}
+
+          <div className="form-group">
+            <label
+              htmlFor="password"
+            >
               Password
             </label>
 
             <input
+              id="password"
               type="password"
-              value={
-                password
-              }
+              value={password}
               onChange={(
                 event
               ) =>
                 setPassword(
-                  event
-                    .target
+                  event.target
                     .value
                 )
               }
               placeholder="Create password"
+              autoComplete="new-password"
               required
             />
           </div>
 
+          {/* CONFIRM PASSWORD */}
+
           <div className="form-group">
-            <label>
+            <label
+              htmlFor="confirmPassword"
+            >
               Confirm Password
             </label>
 
             <input
+              id="confirmPassword"
               type="password"
               value={
                 confirmPassword
@@ -222,34 +336,35 @@ function Register() {
                 event
               ) =>
                 setConfirmPassword(
-                  event
-                    .target
+                  event.target
                     .value
                 )
               }
               placeholder="Confirm password"
+              autoComplete="new-password"
               required
             />
           </div>
 
+          {/* REGISTER BUTTON */}
+
           <button
             type="submit"
-            className="primary-btn"
+            className="auth-submit-btn"
           >
-            Register
+            Create Account
           </button>
         </form>
 
-        <p className="auth-bottom-text">
+        <p className="auth-switch">
           Already have an
           account?{" "}
 
-          <Link
-            to="/login"
-          >
+          <Link to="/login">
             Login
           </Link>
         </p>
+
       </div>
     </section>
   );

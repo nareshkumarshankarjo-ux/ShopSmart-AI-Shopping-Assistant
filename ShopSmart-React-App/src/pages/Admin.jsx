@@ -5,15 +5,23 @@ import React, {
 const initialForm = {
   name: "",
   brand: "",
-  category: "Laptop",
+  category:
+    "Laptop",
   price: "",
   originalPrice: "",
   rating: "4.0",
-  description: "",
+
+  description:
+    "",
+
   image:
     "products/smartbook-air-14.jpg",
-  batteryScore: "5",
-  bestSeller: false,
+
+  batteryScore:
+    "5",
+
+  bestSeller:
+    false,
 };
 
 function Admin({
@@ -21,11 +29,17 @@ function Admin({
   addProduct,
   deleteProduct,
 }) {
-  const [formData, setFormData] =
-    useState(initialForm);
+  const [
+    formData,
+    setFormData,
+  ] = useState(
+    initialForm
+  );
 
-  const [message, setMessage] =
-    useState("");
+  const [
+    message,
+    setMessage,
+  ] = useState("");
 
   const [
     messageType,
@@ -33,7 +47,7 @@ function Admin({
   ] = useState("");
 
   /* =====================================
-     HANDLE INPUT
+     CHANGE
   ===================================== */
 
   const handleChange = (
@@ -51,7 +65,8 @@ function Admin({
         ...current,
 
         [name]:
-          type === "checkbox"
+          type ===
+          "checkbox"
             ? checked
             : value,
       })
@@ -62,71 +77,72 @@ function Admin({
      ADD PRODUCT
   ===================================== */
 
-  const handleSubmit = async (
-    event
-  ) => {
-    event.preventDefault();
+  const handleSubmit =
+    async (
+      event
+    ) => {
+      event.preventDefault();
 
-    setMessage("");
-    setMessageType("");
+      setMessage("");
 
-    if (
-      !formData.name.trim() ||
-      !formData.price
-    ) {
-      setMessage(
-        "Product name and selling price are required."
-      );
+      setMessageType("");
 
-      setMessageType(
-        "error"
-      );
+      if (
+        !formData.name.trim() ||
+        !formData.price
+      ) {
+        setMessage(
+          "Product name and selling price are required."
+        );
 
-      return;
-    }
+        setMessageType(
+          "error"
+        );
 
-    const product = {
-      name:
-        formData.name.trim(),
+        return;
+      }
 
-      brand:
-        formData.brand.trim(),
+      const product = {
+        name:
+          formData.name.trim(),
 
-      category:
-        formData.category,
+        brand:
+          formData.brand.trim(),
 
-      price:
-        Number(
-          formData.price
-        ),
+        category:
+          formData.category,
 
-      originalPrice:
-        Number(
-          formData.originalPrice ||
+        price:
+          Number(
             formData.price
-        ),
+          ),
 
-      rating:
-        Number(
-          formData.rating
-        ),
+        originalPrice:
+          Number(
+            formData.originalPrice ||
+              formData.price
+          ),
 
-      description:
-        formData.description.trim(),
+        rating:
+          Number(
+            formData.rating
+          ),
 
-      image:
-        formData.image.trim(),
+        description:
+          formData.description.trim(),
 
-      batteryScore:
-        Number(
-          formData.batteryScore
-        ),
+        image:
+          formData.image.trim(),
 
-      bestSeller:
-        formData.bestSeller,
-    };
+        batteryScore:
+          Number(
+            formData.batteryScore
+          ),
 
-    try {
+        bestSeller:
+          formData.bestSeller,
+      };
+
       const success =
         await addProduct(
           product
@@ -153,54 +169,39 @@ function Admin({
           "error"
         );
       }
-    } catch (error) {
-      console.error(
-        error
-      );
-
-      setMessage(
-        "Unable to add product. Please check JSON Server."
-      );
-
-      setMessageType(
-        "error"
-      );
-    }
-  };
+    };
 
   /* =====================================
-     DELETE PRODUCT
+     DELETE
   ===================================== */
 
-  const handleDelete = async (
-    product
-  ) => {
-    const confirmed =
-      window.confirm(
-        `Are you sure you want to delete "${product.name}"?`
-      );
+  const handleDelete =
+    async (
+      product
+    ) => {
+      const confirmed =
+        window.confirm(
+          `Are you sure you want to delete "${product.name}"?`
+        );
 
-    if (!confirmed) {
-      return;
-    }
+      if (!confirmed) {
+        return;
+      }
 
-    try {
-      await deleteProduct(
-        product.id
-      );
-    } catch (error) {
-      console.error(
-        error
-      );
+      const success =
+        await deleteProduct(
+          product.id
+        );
 
-      alert(
-        "Unable to delete product."
-      );
-    }
-  };
+      if (!success) {
+        alert(
+          "Unable to delete product."
+        );
+      }
+    };
 
   /* =====================================
-     IMAGE URL
+     IMAGE
   ===================================== */
 
   const getImageUrl = (
@@ -223,17 +224,14 @@ function Admin({
 
     return `${
       import.meta.env.BASE_URL
-    }${String(image).replace(
-      /^\/+/,
-      ""
-    )}`;
+    }${String(
+      image
+    ).replace(/^\/+/, "")}`;
   };
 
   return (
     <section className="admin-page">
       <div className="container">
-        {/* PAGE HEADING */}
-
         <div className="page-heading">
           <h1>
             Product Management
@@ -273,18 +271,12 @@ function Admin({
               handleSubmit
             }
           >
-            {/* PRODUCT NAME */}
-
             <div className="form-group">
-              <label
-                htmlFor="name"
-              >
+              <label>
                 Product Name
               </label>
 
               <input
-                id="name"
-                type="text"
                 name="name"
                 value={
                   formData.name
@@ -297,18 +289,12 @@ function Admin({
               />
             </div>
 
-            {/* BRAND */}
-
             <div className="form-group">
-              <label
-                htmlFor="brand"
-              >
+              <label>
                 Brand
               </label>
 
               <input
-                id="brand"
-                type="text"
                 name="brand"
                 value={
                   formData.brand
@@ -320,17 +306,12 @@ function Admin({
               />
             </div>
 
-            {/* CATEGORY */}
-
             <div className="form-group">
-              <label
-                htmlFor="category"
-              >
+              <label>
                 Category
               </label>
 
               <select
-                id="category"
                 name="category"
                 value={
                   formData.category
@@ -339,43 +320,38 @@ function Admin({
                   handleChange
                 }
               >
-                <option value="Laptop">
+                <option>
                   Laptop
                 </option>
 
-                <option value="Mobile">
+                <option>
                   Mobile
                 </option>
 
-                <option value="Headphone">
+                <option>
                   Headphone
                 </option>
 
-                <option value="Watch">
+                <option>
                   Watch
                 </option>
 
-                <option value="Tablet">
+                <option>
                   Tablet
                 </option>
 
-                <option value="Camera">
+                <option>
                   Camera
                 </option>
               </select>
             </div>
 
-            {/* SELLING PRICE */}
-
             <div className="form-group">
-              <label
-                htmlFor="price"
-              >
+              <label>
                 Selling Price
               </label>
 
               <input
-                id="price"
                 type="number"
                 name="price"
                 value={
@@ -390,17 +366,12 @@ function Admin({
               />
             </div>
 
-            {/* ORIGINAL PRICE */}
-
             <div className="form-group">
-              <label
-                htmlFor="originalPrice"
-              >
+              <label>
                 Original Price
               </label>
 
               <input
-                id="originalPrice"
                 type="number"
                 name="originalPrice"
                 value={
@@ -414,17 +385,12 @@ function Admin({
               />
             </div>
 
-            {/* RATING */}
-
             <div className="form-group">
-              <label
-                htmlFor="rating"
-              >
+              <label>
                 Rating
               </label>
 
               <input
-                id="rating"
                 type="number"
                 step="0.1"
                 min="0"
@@ -439,17 +405,12 @@ function Admin({
               />
             </div>
 
-            {/* DESCRIPTION */}
-
             <div className="form-group admin-description">
-              <label
-                htmlFor="description"
-              >
+              <label>
                 Description
               </label>
 
               <textarea
-                id="description"
                 name="description"
                 value={
                   formData.description
@@ -462,18 +423,12 @@ function Admin({
               />
             </div>
 
-            {/* IMAGE */}
-
             <div className="form-group">
-              <label
-                htmlFor="image"
-              >
+              <label>
                 Image URL / Path
               </label>
 
               <input
-                id="image"
-                type="text"
                 name="image"
                 value={
                   formData.image
@@ -485,17 +440,12 @@ function Admin({
               />
             </div>
 
-            {/* BATTERY SCORE */}
-
             <div className="form-group">
-              <label
-                htmlFor="batteryScore"
-              >
+              <label>
                 Battery Score
               </label>
 
               <input
-                id="batteryScore"
                 type="number"
                 min="1"
                 max="10"
@@ -508,8 +458,6 @@ function Admin({
                 }
               />
             </div>
-
-            {/* BEST SELLER */}
 
             <div className="admin-checkbox-row">
               <label>
@@ -530,12 +478,10 @@ function Admin({
               </label>
             </div>
 
-            {/* ADD BUTTON */}
-
             <div className="admin-submit-row">
               <button
-                className="btn btn-primary"
                 type="submit"
+                className="btn btn-primary"
               >
                 + Add Product
               </button>
@@ -543,115 +489,101 @@ function Admin({
           </form>
         </div>
 
-        {/* EXISTING PRODUCTS */}
+        {/* EXISTING */}
 
         <div className="admin-card admin-products-card">
           <div className="admin-products-header">
-            <div>
-              <h2>
-                Existing Products
-              </h2>
+            <h2>
+              Existing Products
+            </h2>
 
-              <p>
-                Total products:{" "}
-                <strong>
-                  {products.length}
-                </strong>
-              </p>
-            </div>
+            <p>
+              Total products:{" "}
+              <strong>
+                {
+                  products.length
+                }
+              </strong>
+            </p>
           </div>
 
-          {products.length ===
-          0 ? (
-            <div className="admin-empty">
-              <p>
-                No products found.
-              </p>
-            </div>
-          ) : (
-            <div className="admin-product-grid">
-              {products.map(
-                (product) => (
-                  <article
-                    className="admin-product-card"
-                    key={
-                      product.id
-                    }
-                  >
-                    {/* IMAGE */}
+          <div className="admin-product-grid">
+            {products.map(
+              (
+                product
+              ) => (
+                <article
+                  className="admin-product-card"
+                  key={
+                    product.id
+                  }
+                >
+                  <div className="admin-product-image-wrap">
+                    <img
+                      src={getImageUrl(
+                        product.image
+                      )}
+                      alt={
+                        product.name
+                      }
+                    />
+                  </div>
 
-                    <div className="admin-product-image-wrap">
-                      <img
-                        src={getImageUrl(
-                          product.image
+                  <div className="admin-product-info">
+                    <span className="admin-product-category">
+                      {
+                        product.category
+                      }
+                    </span>
+
+                    <h3>
+                      {
+                        product.name
+                      }
+                    </h3>
+
+                    <p className="admin-product-brand">
+                      Brand:{" "}
+                      {
+                        product.brand ||
+                        "N/A"
+                      }
+                    </p>
+
+                    <div className="admin-product-meta">
+                      <strong className="admin-product-price">
+                        ₹
+                        {Number(
+                          product.price
+                        ).toLocaleString(
+                          "en-IN"
                         )}
-                        alt={
-                          product.name
-                        }
-                      />
-                    </div>
+                      </strong>
 
-                    {/* DETAILS */}
-
-                    <div className="admin-product-info">
-                      <span className="admin-product-category">
+                      <span className="admin-product-rating">
+                        ⭐{" "}
                         {
-                          product.category
+                          product.rating
                         }
                       </span>
-
-                      <h3>
-                        {
-                          product.name
-                        }
-                      </h3>
-
-                      {product.brand && (
-                        <p className="admin-product-brand">
-                          Brand:{" "}
-                          {
-                            product.brand
-                          }
-                        </p>
-                      )}
-
-                      <div className="admin-product-meta">
-                        <strong className="admin-product-price">
-                          ₹
-                          {Number(
-                            product.price
-                          ).toLocaleString(
-                            "en-IN"
-                          )}
-                        </strong>
-
-                        <span className="admin-product-rating">
-                          ⭐{" "}
-                          {
-                            product.rating
-                          }
-                        </span>
-                      </div>
                     </div>
+                  </div>
 
-                    {/* DELETE */}
-
-                    <button
-                      type="button"
-                      className="admin-delete-btn"
-                      onClick={() =>
-                        handleDelete(
-                          product
-                        )
-                      }
-                    >
-                      Delete
-                    </button>
-                  </article>
-                )
-              )}
-            </div>
-          )}
+                  <button
+                    type="button"
+                    className="admin-delete-btn"
+                    onClick={() =>
+                      handleDelete(
+                        product
+                      )
+                    }
+                  >
+                    Delete
+                  </button>
+                </article>
+              )
+            )}
+          </div>
         </div>
       </div>
     </section>

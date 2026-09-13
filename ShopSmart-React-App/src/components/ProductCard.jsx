@@ -7,125 +7,91 @@ function ProductCard({
   isLoggedIn,
   compareItems = [],
   toggleCompare,
-  isRecommended = false,
+  isRecommended,
 }) {
   const navigate = useNavigate();
 
-  const getImageUrl = (image) => {
-    if (!image) {
-      return "";
-    }
-
-    if (
-      image.startsWith("http://") ||
-      image.startsWith("https://")
-    ) {
-      return image;
-    }
-
-    return `${import.meta.env.BASE_URL}${String(
-      image
-    ).replace(/^\/+/, "")}`;
-  };
-
   const isSelected = compareItems.some(
-    (item) => item.id === product.id
+    (item) => String(item.id) === String(product.id)
   );
 
-  const handleAddCart = async () => {
+  const handleAddToCart = () => {
     if (!isLoggedIn) {
-      alert(
-        "Please login before adding products to cart."
-      );
-
+      alert("Please login to add products to cart.");
       navigate("/login");
-
       return;
     }
 
-    const success = await addToCart(product);
-
-    if (success) {
-      alert(
-        `${product.name} added to cart.`
-      );
+    if (typeof addToCart === "function") {
+      addToCart(product);
     }
   };
+
+  const handleCompare = () => {
+    if (!isLoggedIn) {
+      alert("Please login to compare products.");
+      navigate("/login");
+      return;
+    }
+
+    if (typeof toggleCompare === "function") {
+      toggleCompare(product);
+    }
+  };
+
+  const imageSource = product.image?.startsWith("http")
+    ? product.image
+    : `${import.meta.env.BASE_URL}${String(product.image || "").replace(/^\/+/, "")}`;
 
   return (
     <article
       className={`product-card ${
-        isRecommended
-          ? "recommended-product-card"
-          : ""
+        isRecommended ? "recommended-product-card" : ""
       }`}
     >
       {isRecommended && (
-        <div className="ai-recommended-badge">
-          🤖 AI Recommended
-        </div>
+        <div className="ai-recommended-badge">🤖 AI Recommended</div>
       )}
 
       <div className="product-image-wrap">
         <img
-          className="product-image"
-          src={getImageUrl(product.image)}
+          src={imageSource}
           alt={product.name}
+          className="product-image"
+          loading="lazy"
         />
       </div>
 
       <div className="product-body">
-        <span className="product-category">
-          {product.category}
-        </span>
+        <span className="product-category">{product.category}</span>
 
-        <h3 className="product-title">
-          {product.name}
-        </h3>
+        <h3 className="product-title">{product.name}</h3>
 
-        {product.description && (
-          <p className="product-description">
-            {product.description}
-          </p>
-        )}
+        <p className="product-description">{product.description}</p>
 
         <div className="product-rating-row">
-          <span className="rating">
-            ⭐ {product.rating || "N/A"}
-          </span>
+          <span className="rating">⭐ {product.rating}</span>
 
           {product.bestSeller && (
-            <span className="best-seller-badge">
-              Best Seller
-            </span>
+            <span className="best-seller-badge">Best Seller</span>
           )}
         </div>
 
         {product.batteryScore && (
           <div className="product-battery">
-            🔋 Battery Score:{" "}
-            <strong>
-              {product.batteryScore}/10
-            </strong>
+            🔋 Battery Score: {product.batteryScore}/10
           </div>
         )}
 
         <div className="product-meta">
           <span className="price">
-            ₹
-            {Number(
-              product.price
-            ).toLocaleString("en-IN")}
+            ₹{Number(product.price || 0).toLocaleString("en-IN")}
           </span>
 
           {product.originalPrice &&
-            Number(product.originalPrice) >
-              Number(product.price) && (
+            Number(product.originalPrice) > Number(product.price) && (
               <span className="original-price">
-                ₹
-                {Number(
-                  product.originalPrice
-                ).toLocaleString("en-IN")}
+                ₹{Number(product.originalPrice).toLocaleString("en-IN")}
               </span>
             )}
         </div>
@@ -134,23 +100,18 @@ function ProductCard({
           <button
             type="button"
             className="product-cart-btn"
-            onClick={handleAddCart}
+            onClick={handleAddToCart}
           >
-            🛒 Add to Cart
+            <span aria-hidden="true">🛒</span>
+            Add to Cart
           </button>
 
           <button
             type="button"
-            className={`compare-btn ${
-              isSelected ? "selected" : ""
-            }`}
-            onClick={() =>
-              toggleCompare(product)
-            }
+            className={isSelected ? "compare-btn selected" : "compare-btn"}
+            onClick={handleCompare}
           >
-            {isSelected
-              ? "✓ Selected for Compare"
-              : "⚖ Compare"}
+            {isSelected ? "✓ Selected" : "⚖ Compare"}
           </button>
         </div>
       </div>

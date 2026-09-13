@@ -6,132 +6,213 @@ import {
 } from "react-router-dom";
 
 function Navbar({
-  cartCount,
-  isLoggedIn,
-  currentUser,
+  cartCount = 0,
+  isLoggedIn = false,
+  currentUser = null,
   logout,
 }) {
   const navigate =
     useNavigate();
 
+  /* =====================================================
+     USER DISPLAY NAME
+  ===================================================== */
+
+  const displayName =
+    currentUser?.name ||
+    currentUser?.fullName ||
+    "";
+
+  /* =====================================================
+     ADMIN CHECK
+  ===================================================== */
+
   const isAdmin =
     currentUser?.role ===
     "admin";
 
-  const handleLogout = () => {
-    logout();
+  /* =====================================================
+     LOGOUT
+  ===================================================== */
 
-    navigate("/");
-  };
+  const handleLogout =
+    () => {
+      if (
+        typeof logout ===
+        "function"
+      ) {
+        logout();
+      } else {
+        /*
+          Backup logout.
+        */
+
+        localStorage.removeItem(
+          "shopsmartUser"
+        );
+
+        navigate("/");
+      }
+    };
 
   return (
     <header className="navbar">
-      <div className="container navbar-inner">
+      <div className="nav-container">
 
-        {/* LOGO */}
+        {/* =================================================
+            LOGO
+        ================================================= */}
 
         <NavLink
           to="/"
-          className="brand"
+          className="logo"
         >
-          Shop
-          <span>
+          <span className="shop">
+            Shop
+          </span>
+
+          <span className="smart">
             Smart
           </span>
         </NavLink>
 
-        {/* NAVIGATION */}
+        {/* =================================================
+            NAVIGATION
+        ================================================= */}
 
         <nav className="nav-links">
 
+          {/* HOME */}
+
           <NavLink
             to="/"
+            end
+            className={({
+              isActive,
+            }) =>
+              isActive
+                ? "active"
+                : ""
+            }
           >
             Home
           </NavLink>
 
+          {/* PRODUCTS */}
+
           <NavLink
             to="/products"
+            className={({
+              isActive,
+            }) =>
+              isActive
+                ? "active"
+                : ""
+            }
           >
             Products
           </NavLink>
 
-          {/* ADMIN ONLY */}
+          {/* =================================================
+              LOGGED-IN USER LINKS
+          ================================================= */}
 
-          {isLoggedIn &&
-            isAdmin && (
-              <NavLink
-                to="/admin"
-              >
-                Admin
-              </NavLink>
-            )}
+          {isLoggedIn ? (
+            <>
 
-          {/* CART:
-              LOGIN REQUIRED
-          */}
+              {/* CART */}
 
-          {isLoggedIn && (
-            <NavLink
-              to="/cart"
-              className="cart-pill"
-            >
-              🛒 Cart
-
-              {cartCount >
-                0 && (
-                <span className="cart-count">
-                  {
-                    cartCount
+              {!isAdmin && (
+                <NavLink
+                  to="/cart"
+                  className={({
+                    isActive,
+                  }) =>
+                    isActive
+                      ? "active"
+                      : ""
                   }
-                </span>
+                >
+                  🛒 Cart
+
+                  {cartCount >
+                    0 && (
+                    <span className="cart-count">
+                      {
+                        cartCount
+                      }
+                    </span>
+                  )}
+                </NavLink>
               )}
-            </NavLink>
-          )}
 
-          {/* LOGGED OUT */}
+              {/* ADMIN */}
 
-          {!isLoggedIn ? (
-            <>
-              <NavLink
-                to="/login"
-                className="btn btn-primary"
-              >
-                Login
-              </NavLink>
+              {isAdmin && (
+                <NavLink
+                  to="/admin"
+                  className={({
+                    isActive,
+                  }) =>
+                    isActive
+                      ? "active"
+                      : ""
+                  }
+                >
+                  Admin
+                </NavLink>
+              )}
 
-              <NavLink
-                to="/register"
-                className="btn btn-outline"
-              >
-                Register
-              </NavLink>
-            </>
-          ) : (
-            /* LOGGED IN */
+              {/* USERNAME */}
 
-            <>
-              <span className="user-name">
+              <span className="welcome-user">
                 Hi,{" "}
-                {currentUser?.name ||
-                  (isAdmin
-                    ? "Admin"
-                    : "User")}
+                {isAdmin
+                  ? "Admin"
+                  : displayName ||
+                    "User"}
               </span>
+
+              {/* LOGOUT */}
 
               <button
                 type="button"
-                className="btn btn-primary"
+                className="logout-btn"
                 onClick={
                   handleLogout
                 }
               >
                 Logout
               </button>
+
+            </>
+          ) : (
+
+            /* =================================================
+                NOT LOGGED IN
+            ================================================= */
+
+            <>
+
+              <NavLink
+                to="/login"
+                className="login-btn"
+              >
+                Login
+              </NavLink>
+
+              <NavLink
+                to="/register"
+                className="register-btn"
+              >
+                Register
+              </NavLink>
+
             </>
           )}
 
         </nav>
+
       </div>
     </header>
   );

@@ -1,790 +1,655 @@
 import React from "react";
 
 import {
-  Link,
+  useNavigate,
 } from "react-router-dom";
 
 function Compare({
   compareItems = [],
 }) {
-  /* =========================================
-     NEED EXACTLY 2 PRODUCTS
-  ========================================= */
+  const navigate =
+    useNavigate();
+
+  const getImageUrl = (
+    image
+  ) => {
+    if (!image) {
+      return "";
+    }
+
+    if (
+      image.startsWith(
+        "http://"
+      ) ||
+      image.startsWith(
+        "https://"
+      )
+    ) {
+      return image;
+    }
+
+    return `${
+      import.meta.env.BASE_URL
+    }${String(
+      image
+    ).replace(/^\/+/, "")}`;
+  };
+
+  /* =====================================
+     REQUIRE EXACTLY TWO PRODUCTS
+  ===================================== */
 
   if (
-    !compareItems ||
-    compareItems.length < 2
+    compareItems.length !==
+    2
   ) {
     return (
-      <section className="page-section">
-
+      <section className="page-container">
         <div className="container">
-
           <div className="empty-state">
+            <h1>
+              ⚖️
+            </h1>
 
             <h2>
-              Select 2 products to compare
+              Select 2 products
+              to compare
             </h2>
 
             <p>
-              Go to the Products page
-              and choose exactly two products.
+              Go to the Products
+              page and choose exactly
+              two products.
             </p>
 
-            <Link
-              to="/products"
-              className="btn btn-primary"
+            <button
+              type="button"
+              className="checkout-btn"
+              onClick={() =>
+                navigate(
+                  "/products"
+                )
+              }
             >
               Go to Products
-            </Link>
-
+            </button>
           </div>
-
         </div>
-
       </section>
     );
   }
 
-  /* =========================================
-     TWO SELECTED PRODUCTS
-  ========================================= */
-
   const [
-    first,
-    second,
+    firstProduct,
+    secondProduct,
   ] = compareItems;
-
-  /* =========================================
-     VALUES
-  ========================================= */
 
   const firstPrice =
     Number(
-      first.price ||
+      firstProduct.price ||
         0
     );
 
   const secondPrice =
     Number(
-      second.price ||
+      secondProduct.price ||
         0
     );
 
   const firstRating =
     Number(
-      first.rating ||
+      firstProduct.rating ||
         0
     );
 
   const secondRating =
     Number(
-      second.rating ||
+      secondProduct.rating ||
         0
     );
 
   const firstBattery =
     Number(
-      first.batteryScore ||
+      firstProduct.batteryScore ||
         0
     );
 
   const secondBattery =
     Number(
-      second.batteryScore ||
+      secondProduct.batteryScore ||
         0
     );
 
-  /* =========================================
-     PRICE COMPARISON
-  ========================================= */
+  /* =====================================
+     BEST PRICE
+  ===================================== */
 
-  const cheaperProduct =
-    firstPrice <
-    secondPrice
-      ? first
-      : secondPrice <
-          firstPrice
-      ? second
-      : null;
-
-  const priceDifference =
-    Math.abs(
-      firstPrice -
-        secondPrice
-    );
-
-  /* =========================================
-     RATING COMPARISON
-  ========================================= */
-
-  const betterRatingProduct =
-    firstRating >
-    secondRating
-      ? first
-      : secondRating >
-          firstRating
-      ? second
-      : null;
-
-  /* =========================================
-     BATTERY COMPARISON
-  ========================================= */
-
-  const betterBatteryProduct =
-    firstBattery >
-    secondBattery
-      ? first
-      : secondBattery >
-          firstBattery
-      ? second
-      : null;
-
-  /* =========================================
-     OVERALL SCORE
-  ========================================= */
-
-  let firstScore = 0;
-  let secondScore = 0;
-
-  /*
-    Price:
-    cheaper product gets 1 point
-  */
+  let priceResult = "";
 
   if (
     firstPrice <
     secondPrice
   ) {
-    firstScore += 1;
+    priceResult = `${
+      firstProduct.name
+    } is cheaper by ₹${(
+      secondPrice -
+      firstPrice
+    ).toLocaleString(
+      "en-IN"
+    )}.`;
   } else if (
     secondPrice <
     firstPrice
   ) {
-    secondScore += 1;
+    priceResult = `${
+      secondProduct.name
+    } is cheaper by ₹${(
+      firstPrice -
+      secondPrice
+    ).toLocaleString(
+      "en-IN"
+    )}.`;
+  } else {
+    priceResult =
+      "Both products have the same price.";
   }
 
-  /*
-    Rating:
-    higher rating gets 1 point
-  */
+  /* =====================================
+     BEST RATING
+  ===================================== */
+
+  let ratingResult = "";
 
   if (
     firstRating >
     secondRating
   ) {
-    firstScore += 1;
+    ratingResult = `${firstProduct.name} has the higher rating.`;
   } else if (
     secondRating >
     firstRating
   ) {
-    secondScore += 1;
+    ratingResult = `${secondProduct.name} has the higher rating.`;
+  } else {
+    ratingResult =
+      "Both products have the same rating.";
   }
 
-  /*
-    Battery:
-    higher battery score gets 1 point
-  */
+  /* =====================================
+     BEST BATTERY
+  ===================================== */
+
+  let batteryResult = "";
 
   if (
     firstBattery >
     secondBattery
   ) {
-    firstScore += 1;
+    batteryResult = `${firstProduct.name} has the better battery score.`;
   } else if (
     secondBattery >
     firstBattery
   ) {
-    secondScore += 1;
+    batteryResult = `${secondProduct.name} has the better battery score.`;
+  } else {
+    batteryResult =
+      "Both products have the same battery score.";
   }
 
-  const overallWinner =
-    firstScore >
+  /* =====================================
+     AI SCORE
+  ===================================== */
+
+  const getScore = (
+    product
+  ) => {
+    let score = 0;
+
+    score +=
+      Number(
+        product.rating ||
+          0
+      ) * 10;
+
+    score +=
+      Number(
+        product.batteryScore ||
+          0
+      ) * 4;
+
+    if (
+      product.bestSeller
+    ) {
+      score += 5;
+    }
+
+    /*
+      Small bonus for
+      lower price.
+    */
+
+    score +=
+      100000 /
+      Math.max(
+        Number(
+          product.price ||
+            1
+        ),
+        1
+      );
+
+    return score;
+  };
+
+  const firstScore =
+    getScore(
+      firstProduct
+    );
+
+  const secondScore =
+    getScore(
+      secondProduct
+    );
+
+  const recommended =
+    firstScore >=
     secondScore
-      ? first
-      : secondScore >
-          firstScore
-      ? second
-      : null;
+      ? firstProduct
+      : secondProduct;
 
-  /* =========================================
-     IMAGE PATH
-  ========================================= */
+  const otherProduct =
+    recommended ===
+    firstProduct
+      ? secondProduct
+      : firstProduct;
 
-  const getImageUrl =
-    (image) => {
-      if (!image) {
-        return "";
-      }
-
-      if (
-        image.startsWith(
-          "http://"
-        ) ||
-        image.startsWith(
-          "https://"
+  const savings =
+    Math.abs(
+      Number(
+        firstProduct.price
+      ) -
+        Number(
+          secondProduct.price
         )
-      ) {
-        return image;
-      }
-
-      return `${
-        import.meta.env.BASE_URL
-      }${String(
-        image
-      ).replace(
-        /^\/+/,
-        ""
-      )}`;
-    };
-
-  /* =========================================
-     AI RECOMMENDATION
-  ========================================= */
-
-  const getRecommendation =
-    () => {
-      /*
-        Build AI-style explanation.
-      */
-
-      const firstWins = [];
-      const secondWins = [];
-
-      if (
-        firstPrice <
-        secondPrice
-      ) {
-        firstWins.push(
-          "lower price"
-        );
-      } else if (
-        secondPrice <
-        firstPrice
-      ) {
-        secondWins.push(
-          "lower price"
-        );
-      }
-
-      if (
-        firstRating >
-        secondRating
-      ) {
-        firstWins.push(
-          "higher rating"
-        );
-      } else if (
-        secondRating >
-        firstRating
-      ) {
-        secondWins.push(
-          "higher rating"
-        );
-      }
-
-      if (
-        firstBattery >
-        secondBattery
-      ) {
-        firstWins.push(
-          "better battery score"
-        );
-      } else if (
-        secondBattery >
-        firstBattery
-      ) {
-        secondWins.push(
-          "better battery score"
-        );
-      }
-
-      /* =========================
-         OVERALL WINNER
-      ========================= */
-
-      if (
-        overallWinner
-      ) {
-        const winnerIsFirst =
-          overallWinner.id ===
-          first.id;
-
-        const winnerWins =
-          winnerIsFirst
-            ? firstWins
-            : secondWins;
-
-        const otherProduct =
-          winnerIsFirst
-            ? second
-            : first;
-
-        const otherWins =
-          winnerIsFirst
-            ? secondWins
-            : firstWins;
-
-        return (
-          <>
-            <p>
-              <strong>
-                {
-                  overallWinner.name
-                }
-              </strong>{" "}
-              is the better overall
-              choice because it performs
-              better in{" "}
-              <strong>
-                {winnerWins.join(
-                  " and "
-                )}
-              </strong>
-              .
-            </p>
-
-            {cheaperProduct &&
-              cheaperProduct.id !==
-                overallWinner.id && (
-                <p>
-                  <strong>
-                    {
-                      cheaperProduct.name
-                    }
-                  </strong>{" "}
-                  is the better budget
-                  choice because it is{" "}
-                  <strong>
-                    ₹
-                    {priceDifference.toLocaleString(
-                      "en-IN"
-                    )}{" "}
-                    cheaper
-                  </strong>
-                  .
-                </p>
-              )}
-
-            {otherWins.length >
-              0 && (
-              <p>
-                <strong>
-                  {
-                    otherProduct.name
-                  }
-                </strong>{" "}
-                still has an advantage
-                in{" "}
-                <strong>
-                  {otherWins.join(
-                    " and "
-                  )}
-                </strong>
-                .
-              </p>
-            )}
-
-            <div className="ai-final-recommendation">
-
-              <strong>
-                Recommendation:
-              </strong>
-
-              <p>
-                Choose{" "}
-                <strong>
-                  {
-                    overallWinner.name
-                  }
-                </strong>{" "}
-                if you want the better
-                overall balance of price,
-                rating and battery.
-              </p>
-
-              {cheaperProduct &&
-                cheaperProduct.id !==
-                  overallWinner.id && (
-                  <p>
-                    Choose{" "}
-                    <strong>
-                      {
-                        cheaperProduct.name
-                      }
-                    </strong>{" "}
-                    if saving money is
-                    your main priority.
-                  </p>
-                )}
-
-            </div>
-          </>
-        );
-      }
-
-      /* =========================
-         COMPLETE TIE
-      ========================= */
-
-      if (
-        !overallWinner &&
-        cheaperProduct
-      ) {
-        return (
-          <>
-            <p>
-              Both products are closely
-              matched overall.
-            </p>
-
-            <p>
-              <strong>
-                {
-                  cheaperProduct.name
-                }
-              </strong>{" "}
-              is the better budget
-              option because it is ₹
-              {priceDifference.toLocaleString(
-                "en-IN"
-              )}{" "}
-              cheaper.
-            </p>
-
-            <p>
-              Choose based on your
-              preferred design, brand
-              or other personal needs.
-            </p>
-          </>
-        );
-      }
-
-      return (
-        <>
-          <p>
-            Both products are very
-            similar in price, rating
-            and battery score.
-          </p>
-
-          <p>
-            Either product can be a
-            good choice depending on
-            your personal preference.
-          </p>
-        </>
-      );
-    };
-
-  /* =========================================
-     PRODUCT CARD COMPONENT
-  ========================================= */
-
-  const ComparisonCard =
-    ({
-      product,
-    }) => {
-      return (
-        <div className="compare-card">
-
-          {/* IMAGE */}
-
-          <img
-            src={getImageUrl(
-              product.image
-            )}
-            alt={
-              product.name
-            }
-          />
-
-          {/* NAME */}
-
-          <h2>
-            {
-              product.name
-            }
-          </h2>
-
-          {/* CATEGORY */}
-
-          <p className="compare-category">
-            {
-              product.category
-            }
-          </p>
-
-          {/* PRICE */}
-
-          <div className="compare-price">
-            ₹
-            {Number(
-              product.price
-            ).toLocaleString(
-              "en-IN"
-            )}
-          </div>
-
-          {/* ORIGINAL PRICE */}
-
-          {product.originalPrice &&
-            Number(
-              product.originalPrice
-            ) >
-              Number(
-                product.price
-              ) && (
-              <p className="compare-original-price">
-                Original Price:{" "}
-                <span>
-                  ₹
-                  {Number(
-                    product.originalPrice
-                  ).toLocaleString(
-                    "en-IN"
-                  )}
-                </span>
-              </p>
-            )}
-
-          {/* RATING */}
-
-          <div className="compare-row">
-
-            <span>
-              Rating
-            </span>
-
-            <strong>
-              ⭐{" "}
-              {
-                product.rating ||
-                "N/A"
-              }
-            </strong>
-
-          </div>
-
-          {/* BATTERY */}
-
-          <div className="compare-row">
-
-            <span>
-              Battery Score
-            </span>
-
-            <strong>
-              {product.batteryScore
-                ? `${product.batteryScore}/10`
-                : "N/A"}
-            </strong>
-
-          </div>
-
-          {/* BRAND */}
-
-          <div className="compare-row">
-
-            <span>
-              Brand
-            </span>
-
-            <strong>
-              {
-                product.brand ||
-                "N/A"
-              }
-            </strong>
-
-          </div>
-
-          {/* BEST SELLER */}
-
-          <div className="compare-row">
-
-            <span>
-              Best Seller
-            </span>
-
-            <strong>
-              {product.bestSeller
-                ? "Yes"
-                : "No"}
-            </strong>
-
-          </div>
-
-        </div>
-      );
-    };
-
-  /* =========================================
-     UI
-  ========================================= */
+    );
 
   return (
-    <section className="page-section">
-
+    <section className="page-container compare-page">
       <div className="container">
-
-        {/* PAGE HEADING */}
-
         <div className="page-heading">
-
           <h1>
             Compare Products
           </h1>
 
           <p>
-            Compare price, rating,
-            battery score and other
-            features before you buy.
+            Compare price,
+            rating, battery score
+            and other features
+            before you buy.
           </p>
-
         </div>
 
-        {/* =========================
-            PRODUCTS
-        ========================== */}
-
         <div className="compare-grid">
+          {/* PRODUCT 1 */}
 
-          <ComparisonCard
-            product={
-              first
-            }
-          />
+          <article className="compare-card">
+            <img
+              src={getImageUrl(
+                firstProduct.image
+              )}
+              alt={
+                firstProduct.name
+              }
+            />
+
+            <h2>
+              {
+                firstProduct.name
+              }
+            </h2>
+
+            <span className="compare-category">
+              {
+                firstProduct.category
+              }
+            </span>
+
+            <h3 className="compare-price">
+              ₹
+              {firstPrice.toLocaleString(
+                "en-IN"
+              )}
+            </h3>
+
+            {firstProduct.originalPrice && (
+              <p className="compare-original-price">
+                Original Price: ₹
+                {Number(
+                  firstProduct.originalPrice
+                ).toLocaleString(
+                  "en-IN"
+                )}
+              </p>
+            )}
+
+            <div className="compare-detail-row">
+              <span>
+                Rating
+              </span>
+
+              <strong>
+                ⭐{" "}
+                {
+                  firstProduct.rating
+                }
+              </strong>
+            </div>
+
+            <div className="compare-detail-row">
+              <span>
+                Battery Score
+              </span>
+
+              <strong>
+                {
+                  firstProduct.batteryScore ||
+                  "N/A"
+                }
+                {firstProduct.batteryScore
+                  ? "/10"
+                  : ""}
+              </strong>
+            </div>
+
+            <div className="compare-detail-row">
+              <span>
+                Brand
+              </span>
+
+              <strong>
+                {
+                  firstProduct.brand ||
+                  "N/A"
+                }
+              </strong>
+            </div>
+
+            <div className="compare-detail-row">
+              <span>
+                Best Seller
+              </span>
+
+              <strong>
+                {firstProduct.bestSeller
+                  ? "Yes"
+                  : "No"}
+              </strong>
+            </div>
+          </article>
+
+          {/* VS */}
 
           <div className="compare-vs">
             VS
           </div>
 
-          <ComparisonCard
-            product={
-              second
-            }
-          />
+          {/* PRODUCT 2 */}
 
+          <article className="compare-card">
+            <img
+              src={getImageUrl(
+                secondProduct.image
+              )}
+              alt={
+                secondProduct.name
+              }
+            />
+
+            <h2>
+              {
+                secondProduct.name
+              }
+            </h2>
+
+            <span className="compare-category">
+              {
+                secondProduct.category
+              }
+            </span>
+
+            <h3 className="compare-price">
+              ₹
+              {secondPrice.toLocaleString(
+                "en-IN"
+              )}
+            </h3>
+
+            {secondProduct.originalPrice && (
+              <p className="compare-original-price">
+                Original Price: ₹
+                {Number(
+                  secondProduct.originalPrice
+                ).toLocaleString(
+                  "en-IN"
+                )}
+              </p>
+            )}
+
+            <div className="compare-detail-row">
+              <span>
+                Rating
+              </span>
+
+              <strong>
+                ⭐{" "}
+                {
+                  secondProduct.rating
+                }
+              </strong>
+            </div>
+
+            <div className="compare-detail-row">
+              <span>
+                Battery Score
+              </span>
+
+              <strong>
+                {
+                  secondProduct.batteryScore ||
+                  "N/A"
+                }
+                {secondProduct.batteryScore
+                  ? "/10"
+                  : ""}
+              </strong>
+            </div>
+
+            <div className="compare-detail-row">
+              <span>
+                Brand
+              </span>
+
+              <strong>
+                {
+                  secondProduct.brand ||
+                  "N/A"
+                }
+              </strong>
+            </div>
+
+            <div className="compare-detail-row">
+              <span>
+                Best Seller
+              </span>
+
+              <strong>
+                {secondProduct.bestSeller
+                  ? "Yes"
+                  : "No"}
+              </strong>
+            </div>
+          </article>
         </div>
 
-        {/* =========================
-            COMPARISON RESULT
-        ========================== */}
+        {/* COMPARISON RESULT */}
 
-        <div className="compare-summary">
-
+        <div className="comparison-result">
           <h2>
             Comparison Result
           </h2>
 
-          {/* PRICE */}
-
-          <div className="comparison-result-row">
-
+          <p>
+            💰{" "}
             <strong>
-              💰 Best Price:
-            </strong>
+              Best Price:
+            </strong>{" "}
+            {priceResult}
+          </p>
 
-            <span>
-              {cheaperProduct
-                ? `${cheaperProduct.name} is cheaper by ₹${priceDifference.toLocaleString(
-                    "en-IN"
-                  )}.`
-                : "Both products have the same price."}
-            </span>
-
-          </div>
-
-          {/* RATING */}
-
-          <div className="comparison-result-row">
-
+          <p>
+            ⭐{" "}
             <strong>
-              ⭐ Best Rating:
-            </strong>
+              Best Rating:
+            </strong>{" "}
+            {ratingResult}
+          </p>
 
-            <span>
-              {betterRatingProduct
-                ? `${betterRatingProduct.name} has the higher rating (${betterRatingProduct.rating}).`
-                : "Both products have the same rating."}
-            </span>
-
-          </div>
-
-          {/* BATTERY */}
-
-          <div className="comparison-result-row">
-
+          <p>
+            🔋{" "}
             <strong>
-              🔋 Best Battery:
-            </strong>
+              Best Battery:
+            </strong>{" "}
+            {batteryResult}
+          </p>
 
-            <span>
-              {betterBatteryProduct
-                ? `${betterBatteryProduct.name} has the better battery score (${betterBatteryProduct.batteryScore}/10).`
-                : "Both products have the same battery score."}
-            </span>
-
-          </div>
-
-          {/* OVERALL WINNER */}
-
-          <div className="comparison-result-row overall-result">
-
+          <p>
+            🏆{" "}
             <strong>
-              🏆 Overall:
-            </strong>
-
-            <span>
-              {overallWinner
-                ? `${overallWinner.name} wins ${Math.max(
-                    firstScore,
-                    secondScore
-                  )} out of 3 comparison factors.`
-                : "Both products are equally matched overall."}
-            </span>
-
-          </div>
-
+              Overall:
+            </strong>{" "}
+            {
+              recommended.name
+            }{" "}
+            is the stronger
+            overall choice.
+          </p>
         </div>
 
-        {/* =========================
-            AI SUGGESTION
-        ========================== */}
+        {/* AI SUGGESTION */}
 
-        <div className="ai-recommendation">
-
+        <div className="ai-suggestion-box">
           <h2>
-            🤖 ShopSmart AI Suggestion
+            🤖 ShopSmart AI
+            Suggestion
           </h2>
 
-          <div className="ai-suggestion-text">
-            {
-              getRecommendation()
-            }
-          </div>
+          <p>
+            <strong>
+              {
+                recommended.name
+              }
+            </strong>{" "}
+            is the better overall
+            choice based on its
+            combination of price,
+            rating and battery
+            score.
+          </p>
 
+          {recommended.rating >
+            otherProduct.rating && (
+            <p>
+              {
+                recommended.name
+              }{" "}
+              has the stronger
+              customer rating.
+            </p>
+          )}
+
+          {recommended.batteryScore >
+            otherProduct.batteryScore && (
+            <p>
+              {
+                recommended.name
+              }{" "}
+              also has the better
+              battery score.
+            </p>
+          )}
+
+          {Number(
+            otherProduct.price
+          ) <
+            Number(
+              recommended.price
+            ) && (
+            <p>
+              However,{" "}
+              {
+                otherProduct.name
+              }{" "}
+              is cheaper by ₹
+              {savings.toLocaleString(
+                "en-IN"
+              )}
+              .
+            </p>
+          )}
+
+          <p>
+            <strong>
+              Recommendation:
+            </strong>
+          </p>
+
+          <p>
+            Choose{" "}
+            <strong>
+              {
+                recommended.name
+              }
+            </strong>{" "}
+            if overall performance
+            and value are your
+            priority.
+          </p>
+
+          {Number(
+            otherProduct.price
+          ) <
+            Number(
+              recommended.price
+            ) && (
+            <p>
+              Choose{" "}
+              <strong>
+                {
+                  otherProduct.name
+                }
+              </strong>{" "}
+              if saving money is
+              your main priority.
+            </p>
+          )}
         </div>
 
-        {/* =========================
-            ACTIONS
-        ========================== */}
-
-        <div className="compare-actions">
-
-          <Link
-            to="/products"
+        <div className="compare-back-row">
+          <button
+            type="button"
             className="btn btn-outline"
+            onClick={() =>
+              navigate(
+                "/products"
+              )
+            }
           >
-            ← Compare Other Products
-          </Link>
-
+            ← Compare Other
+            Products
+          </button>
         </div>
-
       </div>
-
     </section>
   );
 }
