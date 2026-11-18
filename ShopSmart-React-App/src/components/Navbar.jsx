@@ -7,6 +7,7 @@ import {
 
 function Navbar({
   cartCount = 0,
+  wishlistCount = 0,
   isLoggedIn = false,
   currentUser = null,
   logout,
@@ -145,6 +146,14 @@ function Navbar({
                   )}
                 </NavLink>
               )}
+
+              {!isAdmin && (
+                <NavLink to="/wishlist" className={({ isActive }) => isActive ? "active" : ""}>
+                  ♡ Wishlist {wishlistCount > 0 && <span className="cart-count">{wishlistCount}</span>}
+                </NavLink>
+              )}
+
+              <NavLink to="/assistant" className={({ isActive }) => isActive ? "active" : ""}>🤖 AI Assistant</NavLink>
 
               {/* ADMIN */}
 

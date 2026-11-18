@@ -1,5 +1,4 @@
 import React, {
-  useMemo,
   useState,
 } from "react";
 
@@ -26,10 +25,9 @@ function Products({
     setSelectedCategory,
   ] = useState("All");
 
-  const [
-    recommendedProduct,
-    setRecommendedProduct,
-  ] = useState(null);
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [sortBy, setSortBy] = useState("default");
 
   const [voiceStatus, setVoiceStatus] =
     useState("");
@@ -188,20 +186,6 @@ function Products({
       }
     );
   };
-
-  const filteredProducts =
-    useMemo(
-      () =>
-        getFilteredProducts(
-          searchTerm,
-          selectedCategory
-        ),
-      [
-        products,
-        searchTerm,
-        selectedCategory,
-      ]
-    );
 
   const chooseRecommendation = (
     matchingProducts,
@@ -383,59 +367,40 @@ function Products({
     )}.`;
   };
 
-  const updateRecommendation = (
-    query,
-    category = selectedCategory
-  ) => {
-    const matches =
-      getFilteredProducts(
-        query,
-        category
-      );
+  // Combine the existing smart search with explicit price filters.
+  const invalidRange = minPrice !== "" && maxPrice !== "" &&
+    Number(minPrice) > Number(maxPrice);
 
-    if (
-      !query.trim() &&
-      category === "All"
-    ) {
-      setRecommendedProduct(
-        null
-      );
+  const matchingProducts = invalidRange ? [] : getFilteredProducts(
+    searchTerm, selectedCategory
+  ).filter((product) => {
+    const price = Number(product.price);
+    return (minPrice === "" || price >= Number(minPrice)) &&
+      (maxPrice === "" || price <= Number(maxPrice));
+  });
 
-      return;
-    }
-
-    setRecommendedProduct(
-      chooseRecommendation(
-        matches,
-        query
-      )
-    );
+  const filteredProducts = [...matchingProducts];
+  const sorters = {
+    "price-asc": (a, b) => Number(a.price) - Number(b.price),
+    "price-desc": (a, b) => Number(b.price) - Number(a.price),
+    "rating-desc": (a, b) => Number(b.rating) - Number(a.rating),
+    "rating-asc": (a, b) => Number(a.rating) - Number(b.rating),
   };
+  if (sorters[sortBy]) filteredProducts.sort(sorters[sortBy]);
 
-  const handleSearchChange = (
-    event
-  ) => {
-    const value =
-      event.target.value;
+  // Derive recommendations from the current matches, never stale state.
+  const recommendedProduct = searchTerm.trim() || selectedCategory !== "All" ||
+    minPrice !== "" || maxPrice !== ""
+    ? chooseRecommendation(matchingProducts, searchTerm)
+    : null;
 
-    setSearchTerm(value);
+  const handleSearchChange = (event) => setSearchTerm(event.target.value);
+  const handleCategoryChange = (category) => setSelectedCategory(category);
 
-    updateRecommendation(
-      value
-    );
-  };
-
-  const handleCategoryChange = (
-    category
-  ) => {
-    setSelectedCategory(
-      category
-    );
-
-    updateRecommendation(
-      searchTerm,
-      category
-    );
+  const resetFilters = () => {
+    setMinPrice("");
+    setMaxPrice("");
+    setSortBy("default");
   };
 
   const handleVoiceSearch = () => {
@@ -485,10 +450,6 @@ function Products({
         "All"
       );
 
-      updateRecommendation(
-        transcript,
-        "All"
-      );
 
       setVoiceStatus(
         `You said: "${transcript}"`
@@ -564,9 +525,7 @@ function Products({
       "All"
     );
 
-    setRecommendedProduct(
-      null
-    );
+    resetFilters();
 
     setVoiceStatus("");
   };
@@ -598,6 +557,7 @@ function Products({
       searchTerm.trim()
     ) ||
     selectedCategory !== "All" ||
+    minPrice !== "" || maxPrice !== "" || sortBy !== "default" ||
     Boolean(
       recommendedProduct
     );
@@ -689,6 +649,33 @@ function Products({
             )
           )}
         </div>
+
+        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "end", gap: 12, margin: "16px 0 24px" }}>
+          <label style={{ flex: "1 1 140px" }}>
+            Minimum price (₹)
+            <input className="search-input" type="number" min="0" step="1"
+              placeholder="No minimum" value={minPrice}
+              onChange={(event) => setMinPrice(event.target.value === "" ? "" : String(Math.max(0, Number(event.target.value))))} />
+          </label>
+          <label style={{ flex: "1 1 140px" }}>
+            Maximum price (₹)
+            <input className="search-input" type="number" min="0" step="1"
+              placeholder="No maximum" value={maxPrice}
+              onChange={(event) => setMaxPrice(event.target.value === "" ? "" : String(Math.max(0, Number(event.target.value))))} />
+          </label>
+          <label style={{ flex: "1 1 190px" }}>
+            Sort by
+            <select className="search-input" value={sortBy} onChange={(event) => setSortBy(event.target.value)}>
+              <option value="default">Default order</option>
+              <option value="price-asc">Price: Low to High</option>
+              <option value="price-desc">Price: High to Low</option>
+              <option value="rating-desc">Rating: High to Low</option>
+              <option value="rating-asc">Rating: Low to High</option>
+            </select>
+          </label>
+          <button type="button" className="btn btn-outline" onClick={resetFilters}>Reset Filters</button>
+        </div>
+        {invalidRange && <p role="alert" style={{ color: "#b91c1c" }}>Minimum price cannot exceed maximum price.</p>}
 
         {recommendedProduct && (
           <div className="ai-search-recommendation">

@@ -16,6 +16,7 @@ import Footer from "./components/Footer";
 
 import Home from "./pages/Home";
 import Products from "./pages/Products";
+import ProductDetails from "./pages/ProductDetails";
 import Compare from "./pages/Compare";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
@@ -25,11 +26,16 @@ import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import NotFound from "./pages/NotFound";
 
+import Wishlist from "./pages/Wishlist";
+import AIAssistant from "./pages/AIAssistant";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { CartProvider, useCart } from "./context/CartContext";
 import "./App.css";
 
 const API_URL = "http://localhost:3001";
 
-function AppContent() {
+function AppContent({ currentUser, login, registerUser, logout }) {
+  const { cart, cartCount, wishlistCount, storageError, addToCart, updateCartQuantity, removeFromCart, clearCart } = useCart();
   /* =====================================================
      PRODUCTS
   ===================================================== */
@@ -37,12 +43,6 @@ function AppContent() {
   const [products, setProducts] =
     useState([]);
 
-  /* =====================================================
-     CART
-  ===================================================== */
-
-  const [cart, setCart] =
-    useState([]);
 
   /* =====================================================
      COMPARE
@@ -56,24 +56,6 @@ function AppContent() {
   /* =====================================================
      CURRENT USER
   ===================================================== */
-
-  const [
-    currentUser,
-    setCurrentUser,
-  ] = useState(() => {
-    try {
-      const savedUser =
-        localStorage.getItem(
-          "shopsmartUser"
-        );
-
-      return savedUser
-        ? JSON.parse(savedUser)
-        : null;
-    } catch {
-      return null;
-    }
-  });
 
   /* =====================================================
      LOGIN STATUS
@@ -141,504 +123,7 @@ function AppContent() {
       []
     );
 
-  /* =====================================================
-     LOAD CART
-  ===================================================== */
-
-  const loadCart =
-    useCallback(
-      async () => {
-        if (!currentUser) {
-          setCart([]);
-          return;
-        }
-
-        try {
-          const response =
-            await fetch(
-              `${API_URL}/cart`
-            );
-
-          if (!response.ok) {
-            throw new Error(
-              "Unable to load cart."
-            );
-          }
-
-          const data =
-            await response.json();
-
-          setCart(
-            Array.isArray(data)
-              ? data
-              : []
-          );
-        } catch (error) {
-          console.error(
-            "Cart error:",
-            error
-          );
-
-          setCart([]);
-        }
-      },
-      [currentUser]
-    );
-
-  /* =====================================================
-     INITIAL LOAD
-  ===================================================== */
-
-  useEffect(() => {
-    loadProducts();
-  }, [loadProducts]);
-
-  useEffect(() => {
-    loadCart();
-  }, [loadCart]);
-
-  /* =====================================================
-     LOGIN
-  ===================================================== */
-
-  const login = (user) => {
-    if (!user) {
-      return;
-    }
-
-    const normalizedUser = {
-      ...user,
-
-      name:
-        user.name ||
-        user.fullName ||
-        "User",
-    };
-
-    localStorage.setItem(
-      "shopsmartUser",
-      JSON.stringify(
-        normalizedUser
-      )
-    );
-
-    setCurrentUser(
-      normalizedUser
-    );
-
-    setCompareItems([]);
-  };
-
-  /* =====================================================
-     REGISTER USER
-  ===================================================== */
-
-  const registerUser = (
-    user
-  ) => {
-    if (!user) {
-      return;
-    }
-
-    const normalUser = {
-      ...user,
-
-      name:
-        user.name ||
-        user.fullName ||
-        "User",
-
-      role: "user",
-    };
-
-    localStorage.setItem(
-      "shopsmartUser",
-      JSON.stringify(
-        normalUser
-      )
-    );
-
-    setCurrentUser(
-      normalUser
-    );
-
-    setCompareItems([]);
-  };
-
-  /* =====================================================
-     LOGOUT
-  ===================================================== */
-
-  const logout = () => {
-    localStorage.removeItem(
-      "shopsmartUser"
-    );
-
-    setCurrentUser(null);
-
-    setCart([]);
-
-    setCompareItems([]);
-
-    window.location.hash =
-      "#/";
-  };
-
-  /* =====================================================
-     ADD TO CART
-  ===================================================== */
-
-  const addToCart =
-    async (product) => {
-      if (!isLoggedIn) {
-        alert(
-          "Please login to add products to cart."
-        );
-
-        goToLogin();
-
-        return false;
-      }
-
-      if (!product) {
-        return false;
-      }
-
-      const existingItem =
-        cart.find(
-          (item) =>
-            sameId(
-              item.productId ??
-                item.id,
-              product.id
-            )
-        );
-
-      try {
-        /* =============================================
-           EXISTING PRODUCT
-        ============================================= */
-
-        if (existingItem) {
-          const newQuantity =
-            Number(
-              existingItem.quantity ||
-                1
-            ) + 1;
-
-          const response =
-            await fetch(
-              `${API_URL}/cart/${existingItem.id}`,
-              {
-                method: "PATCH",
-
-                headers: {
-                  "Content-Type":
-                    "application/json",
-                },
-
-                body:
-                  JSON.stringify({
-                    quantity:
-                      newQuantity,
-                  }),
-              }
-            );
-
-          if (!response.ok) {
-            throw new Error(
-              "Unable to update cart."
-            );
-          }
-
-          const updatedItem =
-            await response.json();
-
-          setCart(
-            (current) =>
-              current.map(
-                (item) =>
-                  sameId(
-                    item.id,
-                    existingItem.id
-                  )
-                    ? updatedItem
-                    : item
-              )
-          );
-
-          return true;
-        }
-
-        /* =============================================
-           NEW PRODUCT
-        ============================================= */
-
-        const cartProduct = {
-          productId:
-            product.id,
-
-          name:
-            product.name,
-
-          brand:
-            product.brand,
-
-          category:
-            product.category,
-
-          price:
-            product.price,
-
-          originalPrice:
-            product.originalPrice,
-
-          rating:
-            product.rating,
-
-          image:
-            product.image,
-
-          description:
-            product.description,
-
-          batteryScore:
-            product.batteryScore,
-
-          bestSeller:
-            product.bestSeller,
-
-          quantity: 1,
-        };
-
-        const response =
-          await fetch(
-            `${API_URL}/cart`,
-            {
-              method: "POST",
-
-              headers: {
-                "Content-Type":
-                  "application/json",
-              },
-
-              body:
-                JSON.stringify(
-                  cartProduct
-                ),
-            }
-          );
-
-        if (!response.ok) {
-          throw new Error(
-            "Unable to add product."
-          );
-        }
-
-        const savedItem =
-          await response.json();
-
-        setCart(
-          (current) => [
-            ...current,
-            savedItem,
-          ]
-        );
-
-        return true;
-      } catch (error) {
-        console.error(
-          "Add to cart error:",
-          error
-        );
-
-        alert(
-          "Unable to add product to cart."
-        );
-
-        return false;
-      }
-    };
-
-  /* =====================================================
-     UPDATE CART QUANTITY
-  ===================================================== */
-
-  const updateCartQuantity =
-    async (
-      id,
-      change
-    ) => {
-      if (!isLoggedIn) {
-        alert(
-          "Please login first."
-        );
-
-        goToLogin();
-
-        return;
-      }
-
-      const item =
-        cart.find(
-          (cartItem) =>
-            sameId(
-              cartItem.id,
-              id
-            )
-        );
-
-      if (!item) {
-        return;
-      }
-
-      const currentQuantity =
-        Number(
-          item.quantity || 1
-        );
-
-      const newQuantity =
-        currentQuantity +
-        Number(change);
-
-      if (newQuantity <= 0) {
-        await removeFromCart(
-          item.id
-        );
-
-        return;
-      }
-
-      try {
-        const response =
-          await fetch(
-            `${API_URL}/cart/${item.id}`,
-            {
-              method: "PATCH",
-
-              headers: {
-                "Content-Type":
-                  "application/json",
-              },
-
-              body:
-                JSON.stringify({
-                  quantity:
-                    newQuantity,
-                }),
-            }
-          );
-
-        if (!response.ok) {
-          throw new Error(
-            "Unable to update quantity."
-          );
-        }
-
-        const updatedItem =
-          await response.json();
-
-        setCart(
-          (current) =>
-            current.map(
-              (cartItem) =>
-                sameId(
-                  cartItem.id,
-                  item.id
-                )
-                  ? updatedItem
-                  : cartItem
-            )
-        );
-      } catch (error) {
-        console.error(
-          "Quantity error:",
-          error
-        );
-      }
-    };
-
-  /* =====================================================
-     REMOVE FROM CART
-  ===================================================== */
-
-  const removeFromCart =
-    async (id) => {
-      if (!isLoggedIn) {
-        alert(
-          "Please login first."
-        );
-
-        goToLogin();
-
-        return;
-      }
-
-      try {
-        const response =
-          await fetch(
-            `${API_URL}/cart/${id}`,
-            {
-              method: "DELETE",
-            }
-          );
-
-        if (!response.ok) {
-          throw new Error(
-            "Unable to remove item."
-          );
-        }
-
-        setCart(
-          (current) =>
-            current.filter(
-              (item) =>
-                !sameId(
-                  item.id,
-                  id
-                )
-            )
-        );
-      } catch (error) {
-        console.error(
-          "Remove cart error:",
-          error
-        );
-      }
-    };
-
-  /* =====================================================
-     CLEAR CART
-  ===================================================== */
-
-  const clearCart =
-    async () => {
-      const items = [
-        ...cart,
-      ];
-
-      try {
-        await Promise.all(
-          items.map(
-            (item) =>
-              fetch(
-                `${API_URL}/cart/${item.id}`,
-                {
-                  method:
-                    "DELETE",
-                }
-              )
-          )
-        );
-      } catch (error) {
-        console.error(
-          "Clear cart error:",
-          error
-        );
-      }
-
-      setCart([]);
-    };
+  useEffect(() => { loadProducts(); }, [loadProducts]);
 
   /* =====================================================
      COMPARE
@@ -847,32 +332,13 @@ function AppContent() {
     };
 
   /* =====================================================
-     CART COUNT
-  ===================================================== */
-
-  const cartCount =
-    isLoggedIn
-      ? cart.reduce(
-          (
-            total,
-            item
-          ) =>
-            total +
-            Number(
-              item.quantity ||
-                1
-            ),
-          0
-        )
-      : 0;
-
-  /* =====================================================
      ROUTES
   ===================================================== */
 
   return (
     <div className="app-shell">
       <Navbar
+        wishlistCount={wishlistCount}
         cartCount={
           cartCount
         }
@@ -891,6 +357,7 @@ function AppContent() {
       />
 
       <main className="main-content">
+        {storageError && <p role="alert" className="container">{storageError}</p>}
         <Routes>
 
           {/* =================================================
@@ -976,9 +443,20 @@ function AppContent() {
           ================================================= */}
 
           <Route
+            path="/products/:id"
+            element={
+              <ProductDetails
+                products={products}
+                addToCart={addToCart}
+                isLoggedIn={isLoggedIn}
+              />
+            }
+          />
+
+          <Route
             path="/compare"
             element={
-              isLoggedIn ? (
+              <ProtectedRoute isLoggedIn={isLoggedIn}>
                 <Compare
                   compareItems={
                     compareItems
@@ -996,12 +474,7 @@ function AppContent() {
                     clearCompare
                   }
                 />
-              ) : (
-                <Navigate
-                  to="/login"
-                  replace
-                />
-              )
+              </ProtectedRoute>
             }
           />
 
@@ -1009,10 +482,14 @@ function AppContent() {
               CART
           ================================================= */}
 
+          <Route path="/assistant" element={<ProtectedRoute isLoggedIn={isLoggedIn}><AIAssistant products={products} /></ProtectedRoute>} />
+          <Route path="/wishlist" element={
+            <ProtectedRoute isLoggedIn={isLoggedIn}><Wishlist /></ProtectedRoute>
+          } />
           <Route
             path="/cart"
             element={
-              isLoggedIn ? (
+              <ProtectedRoute isLoggedIn={isLoggedIn}>
                 <Cart
                   cart={
                     cart
@@ -1026,12 +503,7 @@ function AppContent() {
                     removeFromCart
                   }
                 />
-              ) : (
-                <Navigate
-                  to="/login"
-                  replace
-                />
-              )
+              </ProtectedRoute>
             }
           />
 
@@ -1042,7 +514,7 @@ function AppContent() {
           <Route
             path="/checkout"
             element={
-              isLoggedIn ? (
+              <ProtectedRoute isLoggedIn={isLoggedIn}>
                 <Checkout
                   cart={
                     cart
@@ -1056,12 +528,7 @@ function AppContent() {
                     currentUser
                   }
                 />
-              ) : (
-                <Navigate
-                  to="/login"
-                  replace
-                />
-              )
+              </ProtectedRoute>
             }
           />
 
@@ -1193,9 +660,112 @@ function AppContent() {
 ===================================================== */
 
 function App() {
+  const [
+    currentUser,
+    setCurrentUser,
+  ] = useState(() => {
+    try {
+      const savedUser =
+        localStorage.getItem(
+          "shopsmartUser"
+        );
+
+      return savedUser
+        ? JSON.parse(savedUser)
+        : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const login = (user) => {
+    if (!user) {
+      return;
+    }
+
+    const normalizedUser = {
+      ...user,
+
+      name:
+        user.name ||
+        user.fullName ||
+        "User",
+    };
+
+    localStorage.setItem(
+      "shopsmartUser",
+      JSON.stringify(
+        normalizedUser
+      )
+    );
+
+    setCurrentUser(
+      normalizedUser
+    );
+
+
+  };
+
+  /* =====================================================
+     REGISTER USER
+  ===================================================== */
+
+  const registerUser = (
+    user
+  ) => {
+    if (!user) {
+      return;
+    }
+
+    const normalUser = {
+      ...user,
+
+      name:
+        user.name ||
+        user.fullName ||
+        "User",
+
+      role: "user",
+    };
+
+    localStorage.setItem(
+      "shopsmartUser",
+      JSON.stringify(
+        normalUser
+      )
+    );
+
+    setCurrentUser(
+      normalUser
+    );
+
+
+  };
+
+  /* =====================================================
+     LOGOUT
+  ===================================================== */
+
+  const logout = () => {
+    localStorage.removeItem(
+      "shopsmartUser"
+    );
+
+    setCurrentUser(null);
+
+
+
+
+
+    window.location.hash =
+      "#/";
+  };
+
   return (
     <HashRouter>
-      <AppContent />
+      <CartProvider currentUser={currentUser}>
+        <AppContent currentUser={currentUser} login={login} registerUser={registerUser} logout={logout} />
+      </CartProvider>
     </HashRouter>
   );
 }

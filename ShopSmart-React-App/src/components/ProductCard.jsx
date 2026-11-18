@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { useCart } from "../context/CartContext";
 
 function ProductCard({
   product,
@@ -10,6 +11,15 @@ function ProductCard({
   isRecommended,
 }) {
   const navigate = useNavigate();
+  const { isWishlisted, toggleWishlist } = useCart();
+  const saved = isWishlisted(product.id);
+  const handleWishlist = () => {
+    if (!isLoggedIn) {
+      navigate("/login");
+      return;
+    }
+    toggleWishlist(product);
+  };
 
   const isSelected = compareItems.some(
     (item) => String(item.id) === String(product.id)
@@ -97,6 +107,18 @@ function ProductCard({
         </div>
 
         <div className="product-actions">
+          <button type="button" className={saved ? "compare-btn selected" : "compare-btn"}
+            aria-pressed={saved} onClick={handleWishlist}>
+            {saved ? "♥ Remove from Wishlist" : "♡ Add to Wishlist"}
+          </button>
+          <button
+            type="button"
+            className="compare-btn"
+            onClick={() => navigate(`/products/${product.id}`)}
+          >
+            👁 View Details
+          </button>
+
           <button
             type="button"
             className="product-cart-btn"
