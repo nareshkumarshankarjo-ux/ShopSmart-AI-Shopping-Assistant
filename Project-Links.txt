@@ -1,3 +1,4 @@
+
 ==================================================
           SHOPSMART - AI SHOPPING ASSISTANT
 ==================================================
@@ -6,21 +7,46 @@ Project Name:
 ShopSmart - AI Shopping Assistant
 
 Developed By:
-Nareshkumar S.
+Nareshkumar S
 
-Technology Used:
+Institution:
+Entri Elevate
+
+Course:
+AI-Enhanced Full Stack Development (MERN)
+
+Batch:
+FN31
+
+Module:
+Module 3 - Mini Project
+
+Vercel Deployment Date:
+19 November 2026
+
+
+--------------------------------------------------
+TECHNOLOGIES USED
+--------------------------------------------------
+
 React.js
 Vite
-JavaScript
+JavaScript ES6+
 HTML5
 CSS3
 React Router DOM
+React Context API
 JSON Server
 Fetch API
 Local Storage
 Web Speech API
 Speech Recognition
 Speech Synthesis
+Git
+GitHub
+GitHub Pages
+Vercel
+Render
 
 
 --------------------------------------------------
@@ -28,15 +54,59 @@ GITHUB REPOSITORY
 --------------------------------------------------
 
 GitHub Repository:
+https://github.com/nareshkumarshankarjo-ux/ShopSmart-AI-Shopping-Assistant
+
+Git Clone URL:
 https://github.com/nareshkumarshankarjo-ux/ShopSmart-AI-Shopping-Assistant.git
+
+Production Branch:
+main
 
 
 --------------------------------------------------
-LIVE PROJECT
+VERCEL - PRIMARY LIVE APPLICATION
+--------------------------------------------------
+
+Home Page:
+https://shop-smart-ai-shopping-assistant.vercel.app/
+
+Products Page:
+https://shop-smart-ai-shopping-assistant.vercel.app/#/products
+
+AI Shopping Assistant:
+https://shop-smart-ai-shopping-assistant.vercel.app/#/assistant
+
+Shopping Cart:
+https://shop-smart-ai-shopping-assistant.vercel.app/#/cart
+
+Wishlist:
+https://shop-smart-ai-shopping-assistant.vercel.app/#/wishlist
+
+Checkout:
+https://shop-smart-ai-shopping-assistant.vercel.app/#/checkout
+
+Admin:
+https://shop-smart-ai-shopping-assistant.vercel.app/#/admin
+
+Login:
+https://shop-smart-ai-shopping-assistant.vercel.app/#/login
+
+Register:
+https://shop-smart-ai-shopping-assistant.vercel.app/#/register
+
+
+--------------------------------------------------
+GITHUB PAGES - ADDITIONAL LIVE APPLICATION
 --------------------------------------------------
 
 Live Demo:
 https://nareshkumarshankarjo-ux.github.io/ShopSmart-AI-Shopping-Assistant/
+
+Products Page:
+https://nareshkumarshankarjo-ux.github.io/ShopSmart-AI-Shopping-Assistant/#/products
+
+Deployment Platform:
+GitHub Pages
 
 
 --------------------------------------------------
@@ -54,6 +124,44 @@ https://shopsmart-ai-shopping-assistant.onrender.com/cart
 
 
 --------------------------------------------------
+VERCEL DEPLOYMENT CONFIGURATION
+--------------------------------------------------
+
+Project Name:
+shop-smart-ai-shopping-assistant
+
+Framework:
+Vite
+
+Production Branch:
+main
+
+Root Directory:
+ShopSmart-React-App
+
+Build Command:
+npm run build
+
+Output Directory:
+dist
+
+Install Command:
+Automatic
+
+Environment Variable:
+VITE_API_URL
+
+Environment Variable Value:
+https://shopsmart-ai-shopping-assistant.onrender.com
+
+Deployment Method:
+Automatic deployment through GitHub integration
+
+Deployment Status:
+Production Ready
+
+
+--------------------------------------------------
 LOCAL DEVELOPMENT LINKS
 --------------------------------------------------
 
@@ -63,8 +171,14 @@ http://localhost:5173/ShopSmart-AI-Shopping-Assistant/
 Products Page:
 http://localhost:5173/ShopSmart-AI-Shopping-Assistant/#/products
 
+AI Shopping Assistant:
+http://localhost:5173/ShopSmart-AI-Shopping-Assistant/#/assistant
+
 Shopping Cart:
 http://localhost:5173/ShopSmart-AI-Shopping-Assistant/#/cart
+
+Wishlist:
+http://localhost:5173/ShopSmart-AI-Shopping-Assistant/#/wishlist
 
 Admin:
 http://localhost:5173/ShopSmart-AI-Shopping-Assistant/#/admin
@@ -94,33 +208,131 @@ http://localhost:3001/cart
 MAIN FEATURES
 --------------------------------------------------
 
-• Smart Product Search
-• AI-style Product Recommendations
-• Voice Search
-• Speech Recognition
-• Speech Synthesis
-• Speak Search Results
-• Product Category Filtering
-• Product Images
-• Best Seller Products
-• Add to Cart
-• Increase / Decrease Cart Quantity
-• Remove from Cart
-• Order Summary
-• User Registration
-• User Login / Logout
-• Admin Product Management
-• JSON Server REST API
-• Online API Deployment with Render
-• Frontend Deployment with GitHub Pages
-• Responsive User Interface
+- Customer Registration
+- Email and Password Login
+- Demo Mobile OTP Login
+- Forgot Password Interface
+- Customer and Admin Roles
+- Frontend Protected Routes
+- Smart Product Search
+- Natural Language Search
+- Rule-Based AI Shopping Assistant
+- Personalized Product Recommendations
+- Budget-Based Recommendations
+- Voice Search
+- Speech Recognition
+- Speech Synthesis
+- Read Aloud Recommendations
+- Product Category Filtering
+- Price Range Filtering
+- Product Sorting
+- Product Comparison
+- Product Details
+- Product Ratings
+- Battery Performance Scores
+- Best Seller Products
+- Customer-Specific Shopping Cart
+- Increase and Decrease Cart Quantity
+- Remove Products from Cart
+- Customer-Specific Wishlist
+- Order Summary
+- Demo Checkout
+- Demo Payment Options
+- Order Confirmation
+- Automatic Cart Clearance
+- Admin Product Addition and Deletion
+- JSON Server REST API
+- Responsive Desktop and Mobile Interface
+- Custom ShopSmart Favicon
+- Render Backend Deployment
+- GitHub Pages Frontend Deployment
+- Vercel Production Deployment
 
 
 --------------------------------------------------
-PROJECT
+AI ASSISTANT SAMPLE QUERIES
+--------------------------------------------------
+
+Budget laptop under 40000 with best battery
+
+Best mobile under 30000
+
+Headphones under 5000
+
+Recommend products for me
+
+What is in my cart?
+
+Laptop under 1000
+
+
+--------------------------------------------------
+FINAL PROJECT VERIFICATION
+--------------------------------------------------
+
+Project Development: Completed
+
+Desktop Functionality Testing: Completed
+
+Mobile Responsiveness Testing: Completed
+
+Mobile Viewport Tested: 400 x 875 pixels
+
+Render API Integration: Verified
+
+Production Build: Successful
+
+GitHub Source Code: Updated
+
+Vercel Production Deployment: Successful
+
+Automatic Vercel Redeployment: Successful
+
+Custom Favicon: Verified
+
+SoundMax Wireless Product Image: Corrected and Verified
+
+Final Mobile Console Check:
+No errors visible in the final captured screenshot.
+
+README Documentation: Updated
+
+Project Links Documentation: Updated
+
+GitHub Pages Latest Version Verification: Pending
+
+Academic Submission: Pending
+
+
+--------------------------------------------------
+DEMO APPLICATION LIMITATIONS
+--------------------------------------------------
+
+- Product information and prices are sample data.
+- AI recommendations use rule-based logic.
+- JSON Server provides a mock backend.
+- Authentication is for educational demonstration.
+- Payment options do not process real transactions.
+- Voice features depend on browser support.
+- Hosted API startup delays may affect loading.
+- Production-grade server-side security is not implemented.
+
+
+--------------------------------------------------
+PROJECT COPYRIGHT
 --------------------------------------------------
 
 ShopSmart - AI Shopping Assistant
-© 2026 ShopSmart Mini Project
+
+Developed By: Nareshkumar S
+
+AI Full Stack Developer (MERN)
+
+GitHub Profile:
+https://github.com/nareshkumarshankarjo-ux
+
+Copyright 2026 ShopSmart Mini Project.
+
+Developed for educational and portfolio purposes.
 
 ==================================================
