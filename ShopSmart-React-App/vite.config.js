@@ -1,7 +1,10 @@
+
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
-  base: "/ShopSmart-AI-Shopping-Assistant/",
+  base: process.env.VERCEL
+    ? "/"
+    : "/ShopSmart-AI-Shopping-Assistant/",
 });

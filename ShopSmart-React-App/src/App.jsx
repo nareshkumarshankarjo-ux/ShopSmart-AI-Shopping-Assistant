@@ -32,7 +32,13 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { CartProvider, useCart } from "./context/CartContext";
 import "./App.css";
 
-const API_URL = "http://localhost:3001";
+
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV
+    ? "http://localhost:3001"
+    : "https://shopsmart-ai-shopping-assistant.onrender.com");
+
 
 function AppContent({ currentUser, login, registerUser, logout }) {
   const { cart, cartCount, wishlistCount, storageError, addToCart, updateCartQuantity, removeFromCart, clearCart } = useCart();
